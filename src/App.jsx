@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import logo from './assets/logo-sidebar.png'
+import logo          from './assets/logo-sidebar.png'
+import logoCollapsed from './assets/logo-sidebar-collapsed.png'
 import { expenseTemplates as dbTemplates } from './data/db'
 import { ScannerInput } from './components/ScannerInput'
 import { Cart }         from './components/Cart'
@@ -145,7 +146,8 @@ function AppContent({ onLogout }) {
     <div className="app">
       <aside className={`sidebar${collapsed ? ' sidebar--collapsed' : ''}`}>
         <div className="sidebar__logo">
-          <img src={logo} alt="FIT SUPPS" className="logo-img" />
+          <img src={logo}          alt="FIT SUPPS" className="logo-img logo-img--full" />
+          <img src={logoCollapsed} alt="FIT SUPPS" className="logo-img logo-img--icon" />
           <button className="sidebar__collapse-btn" onClick={toggleCollapsed} title={collapsed ? 'Expandir menú' : 'Contraer menú'}>
             {ICON_CHEVRON}
           </button>

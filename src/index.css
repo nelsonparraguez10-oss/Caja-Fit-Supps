@@ -68,16 +68,29 @@ body {
 .sidebar--collapsed .sidebar__logo { justify-content: center; padding: 16px 0; }
 
 .logo-img {
-  width: 120px;
   height: auto;
   display: block;
   object-fit: contain;
   flex-shrink: 0;
   transition: opacity 0.18s ease, max-width 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Logo expandido: visible cuando sidebar está abierta */
+.logo-img--full {
+  width: 120px;
   max-width: 120px;
   opacity: 1;
 }
-.sidebar--collapsed .logo-img { max-width: 0; opacity: 0; }
+.sidebar--collapsed .logo-img--full { max-width: 0; opacity: 0; width: 0; }
+
+/* Logo contraído: visible solo cuando sidebar está colapsada */
+.logo-img--icon {
+  width: 36px;
+  max-width: 0;
+  opacity: 0;
+  width: 0;
+}
+.sidebar--collapsed .logo-img--icon { max-width: 36px; opacity: 1; width: 36px; }
 
 .sidebar__collapse-btn {
   width: 28px; height: 28px;
