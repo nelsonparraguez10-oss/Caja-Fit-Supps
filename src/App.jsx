@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import logo from '../Documentos/Imagenes/FIT SUPPS FINAL-06.png'
+import logo from './assets/logo-sidebar.png'
 import { expenseTemplates as dbTemplates } from './data/db'
 import { ScannerInput } from './components/ScannerInput'
 import { Cart }         from './components/Cart'

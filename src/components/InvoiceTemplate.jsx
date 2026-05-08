@@ -1,7 +1,7 @@
 import { forwardRef } from 'react'
 import { formatCLP } from '../utils/calculations'
 import { numberToWords } from '../utils/numberToWords'
-import logo from '../../Documentos/Nota de ventas/Logo para nota de ventas y facturas.png'
+import logo from '../assets/logo-docs.png'
 
 const EMISOR = {
   razonSocial: 'Fit Supps SpA.',
