@@ -21,7 +21,9 @@ const NV = (n) => `NV-${String(n).padStart(4, '0')}`
 export function SalesNote({ products, clients, notes, onCreate, onUpdate, onRemove, onEmit }) {
   const [mode, setMode]             = useState('list')
   const [editNote, setEditNote]     = useState(null)
-  const [viewNote, setViewNote]     = useState(null)
+  const [viewNoteId, setViewNoteId] = useState(null)
+  const [draftNote, setDraftNote]   = useState(null)
+  const viewNote = viewNoteId ? (notes.find((n) => n.id === viewNoteId) ?? null) : draftNote
   const templateRef                 = useRef(null)
   const [clientSearch, setCS]       = useState('')
   const [selectedClient, setSC]     = useState(null)
@@ -105,7 +107,8 @@ export function SalesNote({ products, clients, notes, onCreate, onUpdate, onRemo
   /* ── draft preview (desde formulario, sin guardar) ── */
   const handleDraftPreview = () => {
     if (!items.length) return
-    setViewNote({
+    setViewNoteId(null)
+    setDraftNote({
       folio:         editNote?.folio ?? 0,
       date:          new Date().toLocaleDateString('es-CL'),
       cliente:       selectedClient
@@ -129,7 +132,7 @@ export function SalesNote({ products, clients, notes, onCreate, onUpdate, onRemo
           folio={viewNote.folio > 0 ? NV(viewNote.folio) : 'BORRADOR'}
           receptor={viewNote.cliente}
           total={viewNote.total}
-          onClose={() => setViewNote(null)}
+          onClose={() => { setViewNoteId(null); setDraftNote(null) }}
         />
         <div className="doc-page-wrap">
           <SalesNoteTemplate ref={templateRef} note={viewNote} />
@@ -282,7 +285,7 @@ export function SalesNote({ products, clients, notes, onCreate, onUpdate, onRemo
                   <td>{formatCLP(n.total)}</td>
                   <td><span className={`status-badge status--${n.estado}`}>{ESTADO_LABEL[n.estado]}</span></td>
                   <td>
-                    <button type="button" onClick={() => setViewNote(n)}>VER</button>
+                    <button type="button" onClick={() => { setDraftNote(null); setViewNoteId(n.id) }}>VER</button>
                     {n.estado === 'pendiente' && (
                       <>
                         <button type="button" onClick={() => startEdit(n)}>EDITAR</button>
