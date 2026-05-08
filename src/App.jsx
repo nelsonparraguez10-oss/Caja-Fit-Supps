@@ -148,9 +148,6 @@ function AppContent({ onLogout }) {
         <div className="sidebar__logo">
           <img src={logo}          alt="FIT SUPPS" className="logo-img logo-img--full" />
           <img src={logoCollapsed} alt="FIT SUPPS" className="logo-img logo-img--icon" />
-          <button className="sidebar__collapse-btn" onClick={toggleCollapsed} title={collapsed ? 'Expandir menú' : 'Contraer menú'}>
-            {ICON_CHEVRON}
-          </button>
         </div>
         <nav className="sidebar__nav">
           {NAV.map(({ id, label, icon }) => (
@@ -160,6 +157,10 @@ function AppContent({ onLogout }) {
             </button>
           ))}
         </nav>
+        <button className="sidebar__collapse-btn" onClick={toggleCollapsed} title={collapsed ? 'Expandir menú' : 'Contraer menú'}>
+          <span className="sidebar__collapse-icon">{ICON_CHEVRON}</span>
+          <span className="sidebar__collapse-label">Contraer</span>
+        </button>
         <button className="sidebar__logout" onClick={onLogout} title="Cerrar sesión">
           <span className="sidebar__logout-icon">{ICON_LOGOUT}</span>
           <span className="sidebar__logout-label">Cerrar sesión</span>
