@@ -1263,6 +1263,28 @@ td button.btn-danger:hover { color: var(--danger);  }
   .inline-input    { width: 120px; }
   .shipping-fields { grid-template-columns: 1fr; }
 
+  /* Scanner — input ocupa 100% y dropdown es full-width */
+  .btn-consulta    { display: none; }          /* F2 solo es útil con teclado físico */
+  .scanner-suggest-wrap { width: 100%; }
+
+  .scanner-dropdown__item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 14px 16px;
+  }
+  .sdi-name {
+    max-width: 100%;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sdi-meta {
+    font-size: 12px;
+    color: var(--text3);
+  }
+
   /* Forms */
   .form-grid, .form-grid--wide { grid-template-columns: 1fr 1fr; }
   .product-form, .expense-form { padding: 14px; }
