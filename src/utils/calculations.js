@@ -1,10 +1,23 @@
 export const IVA_RATE = 0.19
-export const CARD_RATE = 0.007
-export const CARD_FIXED = 80
 
 export const calcNeto = (totalConIVA) => totalConIVA / (1 + IVA_RATE)
 export const calcIVA  = (totalConIVA) => totalConIVA - calcNeto(totalConIVA)
-export const calcCardCommission = (total) => total * CARD_RATE + CARD_FIXED
+
+export const calcCommissionFromCfg = (total, cfg, paymentMethod) => {
+  if (paymentMethod === 'debito') {
+    const { rate = 0.70, fixed = 0 } = cfg?.getnet?.debito ?? {}
+    return Math.round(total * (rate / 100) + fixed)
+  }
+  if (paymentMethod === 'credito') {
+    const { rate = 1.50, fixed = 0 } = cfg?.getnet?.credito ?? {}
+    return Math.round(total * (rate / 100) + fixed)
+  }
+  if (paymentMethod === 'mercadopago' || paymentMethod === 'card') {
+    const { rate = 5.99, fixed = 0 } = cfg?.mercadopago ?? {}
+    return Math.round(total * (rate / 100) + fixed)
+  }
+  return 0
+}
 
 export const formatCLP = (n) =>
   new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(Math.round(n || 0))
@@ -28,9 +41,9 @@ export const calcAnalytics = (sales, expenses) => {
   // IVA Por Pagar al SII
   const ivaPorPagar = Math.max(0, debitoFiscal - creditoFiscal)
 
-  // Comisiones tarjeta POS
+  // Comisiones tarjeta POS (card legacy + debito + credito)
   const comisionesTargeta = sales
-    .filter((s) => s.paymentMethod === 'card')
+    .filter((s) => ['card', 'debito', 'credito'].includes(s.paymentMethod))
     .reduce((acc, s) => acc + (s.cardCommission || 0), 0)
 
   // Logística

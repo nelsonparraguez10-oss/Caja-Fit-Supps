@@ -8,7 +8,8 @@ const CHANNELS = [
 const POS_PAYMENTS = [
   { key: 'cash',     label: 'Efectivo'      },
   { key: 'transfer', label: 'Transferencia' },
-  { key: 'card',     label: 'Tarjeta'       },
+  { key: 'debito',   label: 'Débito'        },
+  { key: 'credito',  label: 'Crédito'       },
 ]
 
 export function Cart({
@@ -17,13 +18,16 @@ export function Cart({
   ecomReceived, setEcomReceived,
   cobroEnvio, setCobroEnvio,
   costoEnvio, setCostoEnvio,
-  listTotal, effectiveTotal, cardCommission, shippingMargin,
+  listTotal, effectiveTotal, cardCommission, mpCommission, shippingMargin,
+  cfg,
   onRemove, onUpdateQuantity, onCheckout,
 }) {
   const netoEfectivo = calcNeto(effectiveTotal)
   const ivaEfectivo  = calcIVA(effectiveTotal)
   const shipCobro    = parseFloat(cobroEnvio) || 0
   const shipCosto    = parseFloat(costoEnvio) || 0
+
+  const mpRate       = cfg?.mercadopago?.rate ?? 5.99
 
   return (
     <div className="cart">
@@ -66,7 +70,7 @@ export function Cart({
 
       {items.length > 0 && (
         <>
-          {/* Totales de producto */}
+          {/* Totales */}
           <div className="cart__totals">
             {channel === 'ECOM' ? (
               <>
@@ -74,14 +78,18 @@ export function Cart({
                   <span>Total de lista</span>
                   <span>{formatCLP(listTotal)}</span>
                 </div>
+                <div className="total-row">
+                  <span>Comisión MP estimada ({mpRate}%)</span>
+                  <span className="text-warn">−{formatCLP(mpCommission)}</span>
+                </div>
                 <div className="total-row total-row--input">
-                  <label htmlFor="ecom-received">Monto recibido (post-comisión MP)</label>
+                  <label htmlFor="ecom-received">Monto recibido (post-MP)</label>
                   <input
                     id="ecom-received"
                     type="number"
                     value={ecomReceived}
                     onChange={(e) => setEcomReceived(e.target.value)}
-                    placeholder={String(listTotal)}
+                    placeholder={String(listTotal - mpCommission)}
                     className="inline-input"
                     min="0"
                     step="1"
@@ -114,7 +122,7 @@ export function Cart({
             )}
           </div>
 
-          {/* Método de pago (solo POS) */}
+          {/* Método de pago (POS) */}
           {channel === 'POS' && (
             <div className="cart__section">
               <p className="section-label">MÉTODO DE PAGO</p>
@@ -130,8 +138,14 @@ export function Cart({
                   </button>
                 ))}
               </div>
-              {paymentMethod === 'card' && (
-                <p className="commission-note">Comisión tarjeta: {formatCLP(cardCommission)}</p>
+              {(paymentMethod === 'debito' || paymentMethod === 'credito') && (
+                <p className="commission-note">
+                  Comisión {paymentMethod === 'debito' ? 'débito' : 'crédito'} ({
+                    paymentMethod === 'debito'
+                      ? cfg?.getnet?.debito?.rate ?? 0.70
+                      : cfg?.getnet?.credito?.rate ?? 1.50
+                  }%): {formatCLP(cardCommission)}
+                </p>
               )}
             </div>
           )}

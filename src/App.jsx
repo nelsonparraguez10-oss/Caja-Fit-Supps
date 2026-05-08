@@ -9,7 +9,9 @@ import { Analytics }    from './components/Analytics'
 import { Clients }      from './components/Clients'
 import { Documents }    from './components/Documents'
 import { Login }        from './components/Login'
+import { Settings }     from './components/Settings'
 import { useCart }      from './hooks/useCart'
+import { useSettings }  from './hooks/useSettings'
 import { useProducts, useSales, useExpenses, useExpenseTemplates, useClients } from './hooks/useDB'
 
 const NAV = [
@@ -36,6 +38,10 @@ const NAV = [
   {
     id: 'analiticas', label: 'Analíticas',
     icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  },
+  {
+    id: 'configuracion', label: 'Config',
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
   },
 ]
 
@@ -84,7 +90,8 @@ function AppContent({ onLogout }) {
 
   const { clients, create: createClient, update: updateClient, remove: removeClient } = useClients()
 
-  const cart = useCart()
+  const { cfg, save: saveSettings } = useSettings()
+  const cart = useCart(cfg)
 
   useEffect(() => {
     dbTemplates.autoImputeMonth()
@@ -105,7 +112,7 @@ function AppContent({ onLogout }) {
       listTotal:      cart.listTotal,
       effectiveTotal: cart.effectiveTotal,
       paymentMethod:  cart.channel === 'ECOM' ? 'mercadopago' : cart.paymentMethod,
-      cardCommission: cart.cardCommission,
+      cardCommission: cart.channel === 'ECOM' ? cart.mpCommission : cart.cardCommission,
       shipping: {
         cobro:  parseFloat(cart.cobroEnvio) || 0,
         costo:  parseFloat(cart.costoEnvio) || 0,
@@ -160,6 +167,8 @@ function AppContent({ onLogout }) {
               listTotal={cart.listTotal}
               effectiveTotal={cart.effectiveTotal}
               cardCommission={cart.cardCommission}
+              mpCommission={cart.mpCommission}
+              cfg={cfg}
               shippingMargin={cart.shippingMargin}
               onRemove={cart.removeItem}
               onUpdateQuantity={cart.updateQuantity}
@@ -194,6 +203,10 @@ function AppContent({ onLogout }) {
 
         {tab === 'analiticas' && (
           <Analytics sales={sales} expenses={expenses} products={products} />
+        )}
+
+        {tab === 'configuracion' && (
+          <Settings cfg={cfg} onSave={saveSettings} />
         )}
       </main>
 

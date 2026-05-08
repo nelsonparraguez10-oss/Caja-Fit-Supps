@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react'
-import { calcCardCommission } from '../utils/calculations'
+import { calcCommissionFromCfg } from '../utils/calculations'
 import { products as dbProducts } from '../data/db'
 
-export function useCart() {
+export function useCart(cfg) {
   const [items, setItems]                   = useState([])
-  const [channel, setChannel]               = useState('POS') // 'POS' | 'ECOM'
+  const [channel, setChannel]               = useState('POS')
   const [paymentMethod, setPaymentMethod]   = useState('cash')
-  const [ecomReceived, setEcomReceived]     = useState('') // monto manual post-MP
+  const [ecomReceived, setEcomReceived]     = useState('')
   const [cobroEnvio, setCobroEnvio]         = useState('')
   const [costoEnvio, setCostoEnvio]         = useState('')
 
@@ -73,16 +73,20 @@ export function useCart() {
 
   const listTotal = items.reduce((acc, i) => acc + i.subtotal, 0)
 
-  // Monto real recibido: ECOM usa el override manual; POS usa el total de lista
   const effectiveTotal =
     channel === 'ECOM'
       ? (parseFloat(ecomReceived) || listTotal)
       : listTotal
 
-  // Comisión tarjeta solo aplica en POS con pago tarjeta
+  // Comisión aplica en POS débito/crédito, y en ECOM se calcula para referencia
   const cardCommission =
-    channel === 'POS' && paymentMethod === 'card'
-      ? calcCardCommission(listTotal)
+    channel === 'POS' && (paymentMethod === 'debito' || paymentMethod === 'credito')
+      ? calcCommissionFromCfg(listTotal, cfg, paymentMethod)
+      : 0
+
+  const mpCommission =
+    channel === 'ECOM'
+      ? calcCommissionFromCfg(listTotal, cfg, 'mercadopago')
       : 0
 
   const shippingMargin = (parseFloat(cobroEnvio) || 0) - (parseFloat(costoEnvio) || 0)
@@ -97,6 +101,7 @@ export function useCart() {
     listTotal,
     effectiveTotal,
     cardCommission,
+    mpCommission,
     shippingMargin,
     addItem,
     removeItem,
