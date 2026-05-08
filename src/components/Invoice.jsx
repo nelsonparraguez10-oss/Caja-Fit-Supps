@@ -232,7 +232,7 @@ function EmitForm({ products, clients, prefillNote, onSubmit, onCancel }) {
                 />
               </div>
               <div className="manual-field">
-                <label>P. Unitario ($)</label>
+                <label>P. Unitario (c/IVA)</label>
                 <input
                   type="number"
                   placeholder="0"
