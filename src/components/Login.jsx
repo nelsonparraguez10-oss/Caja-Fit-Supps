@@ -1,26 +1,36 @@
 import { useState } from 'react'
 import logo from '../assets/logo-sidebar.png'
 
-const VALID_EMAIL = 'fitsupps2025@gmail.com'
-const VALID_PW    = '8997'
+// SHA-256 of "email:password:VITE_SECRET_KEY" — credentials never stored in plain text
+const AUTH_HASH = 'a6e0a559996c23b6509aabe6e3462443a9fb07a7ccfdb6ad895ecb41df306f1d'
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+async function verifyCredentials(email, pw) {
+  const key  = import.meta.env.VITE_SECRET_KEY ?? ''
+  const hash = await sha256(`${email.trim().toLowerCase()}:${pw}:${key}`)
+  return hash === AUTH_HASH
+}
 
 export function Login({ onSuccess }) {
-  const [email, setEmail] = useState('')
-  const [pw, setPw]       = useState('')
-  const [error, setError] = useState(false)
+  const [email, setEmail]     = useState('')
+  const [pw, setPw]           = useState('')
+  const [error, setError]     = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setTimeout(() => {
-      if (email.trim().toLowerCase() === VALID_EMAIL && pw === VALID_PW) {
-        onSuccess()
-      } else {
-        setError(true)
-        setLoading(false)
-      }
-    }, 400)
+    const ok = await verifyCredentials(email, pw)
+    if (ok) {
+      onSuccess()
+    } else {
+      setError(true)
+      setLoading(false)
+    }
   }
 
   return (
@@ -55,9 +65,7 @@ export function Login({ onSuccess }) {
             />
           </div>
 
-          {error && (
-            <p className="login-error">Correo o contraseña incorrectos</p>
-          )}
+          {error && <p className="login-error">Correo o contraseña incorrectos</p>}
 
           <button type="submit" className="login-btn" disabled={loading || !email || !pw}>
             {loading ? 'Verificando…' : 'INGRESAR'}
