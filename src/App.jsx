@@ -23,16 +23,28 @@ const NAV = [
 
 export default function App() {
   const [authed, setAuthed] = useState(() => localStorage.getItem('pos_auth') === '1')
+
+  if (!authed) {
+    return (
+      <Login onSuccess={() => {
+        localStorage.setItem('pos_auth', '1')
+        setAuthed(true)
+      }} />
+    )
+  }
+
+  return (
+    <AppContent onLogout={() => {
+      localStorage.removeItem('pos_auth')
+      setAuthed(false)
+    }} />
+  )
+}
+
+function AppContent({ onLogout }) {
   const [tab, setTab]             = useState('terminal')
   const [queryMode, setQueryMode] = useState(false)
   const [toast, setToast]         = useState(null)
-
-  if (!authed) return (
-    <Login onSuccess={() => {
-      localStorage.setItem('pos_auth', '1')
-      setAuthed(true)
-    }} />
-  )
 
   const { products, create: createProduct, update: updateProduct, remove: removeProduct } = useProducts()
   const { sales,    create: createSale }                                                  = useSales()
@@ -96,10 +108,7 @@ export default function App() {
             </button>
           ))}
         </nav>
-        <button
-          className="sidebar__logout"
-          onClick={() => { localStorage.removeItem('pos_auth'); setAuthed(false) }}
-        >
+        <button className="sidebar__logout" onClick={onLogout}>
           Cerrar sesión
         </button>
         <p className="sidebar__version">v3.1.0</p>
