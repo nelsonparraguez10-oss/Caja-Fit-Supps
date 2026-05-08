@@ -1246,8 +1246,9 @@ td button.btn-danger:hover { color: var(--danger);  }
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
   }
-  .sidebar__logo    { display: none; }
-  .sidebar__version { display: none; }
+  .sidebar__logo         { display: none; }
+  .sidebar__version      { display: none; }
+  .sidebar__collapse-btn { display: none; }
 
   .sidebar__nav {
     flex-direction: row;
