@@ -1301,3 +1301,227 @@ td button.btn-danger:hover { color: var(--danger);  }
   .trend-rev    { display: none; }
   .analytics__card { padding: 14px 16px; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   PREMIUM UI  ·  Apple HIG + POS Ergonomics
+   ― tokens · micro-interacciones · tipografía · profundidad · ergonomía
+══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Tokens actualizados ─────────────────────────────────────────── */
+:root {
+  --r:          14px;
+  --r-sm:       10px;
+  --r-lg:       20px;
+  --shadow:     0 2px 10px rgba(0,0,0,.22), 0 0 0 0.5px rgba(255,255,255,.055);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,.3),  0 0 0 0.5px rgba(255,255,255,.07);
+  --shadow-btn: 0 4px 18px rgba(10,132,255,.32);
+  --focus-ring: 0 0 0 3px rgba(10,132,255,.22), 0 0 0 1px rgba(10,132,255,.55);
+  --ease:       cubic-bezier(.25,.46,.45,.94);
+}
+
+/* ── 2. Micro-interacciones globales ────────────────────────────────── */
+/* Todos los botones tienen transición + hundimiento al pulsar          */
+button {
+  transition: color .15s var(--ease), background .15s var(--ease),
+              border-color .15s var(--ease), transform .15s var(--ease),
+              box-shadow .15s var(--ease);
+}
+button:active { transform: scale(.97); }
+
+/* Navegación: no necesita hundimiento, tiene indicador propio          */
+.nav-item:active    { transform: none; }
+.channel-tab:active { transform: scale(.97); }
+.payment-tab:active { transform: scale(.97); }
+
+/* ── 3. Focus ring — scanner y todos los inputs ─────────────────────── */
+.scanner-input:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+.scanner-input {
+  padding: 13px 16px;
+  font-size: 15px;
+  border-radius: var(--r-sm);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+select:focus {
+  box-shadow: var(--focus-ring);
+}
+
+/* ── 4. Cards con profundidad ───────────────────────────────────────── */
+.scanner-wrap {
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  border-color: transparent;
+}
+.cart {
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  border-color: transparent;
+}
+.product-form, .expense-form {
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  border-color: transparent;
+}
+.analytics__card {
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  transition: box-shadow .2s var(--ease), transform .2s var(--ease);
+}
+.analytics__card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+.tpl-card {
+  border-radius: var(--r-sm);
+  transition: box-shadow .15s var(--ease), border-color .15s var(--ease);
+}
+.tpl-card:hover { box-shadow: var(--shadow); }
+
+/* Dropdown del scanner: glass */
+.scanner-dropdown {
+  border-radius: var(--r-sm);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.5), 0 0 0 0.5px rgba(255,255,255,.08);
+}
+
+/* ── 5. Botón de cobro — CTA principal del POS ──────────────────────── */
+.btn-checkout {
+  margin: 12px 16px 16px;
+  padding: 18px 20px;
+  border-radius: var(--r-sm);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  box-shadow: var(--shadow-btn);
+}
+.btn-checkout:hover {
+  background: var(--accent-dk);
+  box-shadow: 0 6px 24px rgba(10,132,255,.45);
+  transform: translateY(-1px);
+}
+.btn-checkout:active {
+  transform: scale(.97);
+  box-shadow: 0 2px 10px rgba(10,132,255,.25);
+}
+
+/* ── 6. Tipografía de precisión ─────────────────────────────────────── */
+/* Small Caps — etiquetas de columnas, secciones, inputs */
+th,
+.section-label,
+.analytics__card-title,
+.exp-section__title,
+.label,
+.products h2, .expenses h2, .analytics h2 {
+  letter-spacing: .08em;
+}
+th {
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: #86868B;
+}
+.section-label {
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: #86868B;
+}
+
+/* Tabular numerics — precios y cantidades siempre alineados */
+.cart-item__sub,
+.cart-item__unit,
+.qty-val,
+.total-row,
+.total-row--grand,
+.brow__value,
+.trend-qty,
+.trend-rev,
+.dp-total-row,
+.exp-summary__cell strong,
+td { font-variant-numeric: tabular-nums; }
+
+/* ── 7. Canal y pago — tabs más refinados ───────────────────────────── */
+.channel-tab {
+  font-size: 10px;
+  letter-spacing: .08em;
+  padding: 15px 12px;
+}
+.payment-tab  {
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 10px 6px;
+}
+.payment-tab--active { box-shadow: 0 2px 10px rgba(10,132,255,.25); }
+
+/* ── 8. Login — card premium ────────────────────────────────────────── */
+.login-card {
+  border-radius: var(--r-lg);
+  box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 0 0.5px rgba(255,255,255,.08);
+  border-color: transparent;
+}
+.login-btn:active:not(:disabled) { transform: scale(.97); }
+.login-input:focus {
+  box-shadow: var(--focus-ring);
+}
+
+/* ── 9. Sidebar glass (desktop) ─────────────────────────────────────── */
+.sidebar {
+  background: rgba(28,28,30,.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ── 10. Toast — glass pill ─────────────────────────────────────────── */
+.toast {
+  border-radius: var(--r-sm);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.toast--success {
+  background: rgba(28,28,30,.9);
+  box-shadow: 0 4px 20px rgba(0,0,0,.25), 0 0 0 0.5px rgba(255,255,255,.08);
+}
+
+/* ── 11. Nav items — transición suave ───────────────────────────────── */
+.nav-item {
+  transition: color .15s var(--ease), background .2s var(--ease);
+}
+
+/* ── 12. Bento — analytics grid más definido ────────────────────────── */
+.analytics__grid-2 {
+  gap: 14px;
+}
+.analytics__card--capital {
+  border-left: 3px solid var(--warning);
+  border-radius: var(--r-lg);
+}
+
+/* ── 13. Área táctil — botones de cobro y acción ────────────────────── */
+button[type="submit"] {
+  padding: 10px 22px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 700;
+}
+button[type="submit"]:active { transform: scale(.97); }
+button[type="button"]:active { transform: scale(.97); }
+
+/* Botón CONSULTA — touch target */
+.btn-consulta {
+  padding: 13px 22px;
+  border-radius: var(--r-sm);
+  font-size: 11px;
+}
+
+/* ── 14. Inputs globales — border radius consistente ────────────────── */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select { border-radius: var(--r-sm); }
