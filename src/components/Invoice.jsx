@@ -17,7 +17,6 @@ const calcTotals = (items) => {
 const TIPO_LABELS  = { boleta: 'Boleta', factura: 'Factura' }
 const PAGO_LABELS  = { contado: 'Contado', transferencia: 'Transferencia', credito30: 'Crédito 30 días', credito60: 'Crédito 60 días' }
 const PAGO_OPTS    = Object.entries(PAGO_LABELS)
-const NV           = (n) => `NV-${String(n).padStart(4, '0')}`
 const FOLIO_FMT    = (tipo, n) => `${tipo === 'boleta' ? 'B' : 'F'}-${String(n).padStart(6, '0')}`
 
 // Emisor fijo — editable si se desea en el futuro via settings
@@ -27,78 +26,6 @@ const EMISOR = {
   giro:        'Comercio al por menor de artículos deportivos y suplementos',
   direccion:   'Ingresa tu dirección',
   comuna:      'Ingresa tu comuna',
-}
-
-/* ── Print overlay ─────────────────────────────────────────────────────────── */
-function PrintView({ doc, onClose }) {
-  return (
-    <div className="print-overlay">
-      <div className="no-print print-actions-bar">
-        <button type="button" onClick={() => window.print()}>IMPRIMIR</button>
-        <button type="button" onClick={onClose}>CERRAR</button>
-      </div>
-      <div className="print-doc">
-        <div className="print-header">
-          <div>
-            <h1 className="print-title">{TIPO_LABELS[doc.tipoDocumento].toUpperCase()}</h1>
-            <p className="print-emisor">{EMISOR.razonSocial}</p>
-            <p>RUT: {EMISOR.rut}</p>
-            <p>Giro: {EMISOR.giro}</p>
-            <p>{EMISOR.direccion}, {EMISOR.comuna}</p>
-          </div>
-          <div className="print-folio-box">
-            <p className="print-folio-label">N°</p>
-            <p className="print-folio-num">{FOLIO_FMT(doc.tipoDocumento, doc.folio)}</p>
-            <p className="print-date">Fecha: {doc.fechaEmision}</p>
-          </div>
-        </div>
-
-        {doc.receptor && (
-          <div className="print-receptor">
-            <h3>RECEPTOR</h3>
-            <table className="print-receptor-table">
-              <tbody>
-                <tr><td>Razón Social</td><td>{doc.receptor.razonSocial}</td></tr>
-                <tr><td>RUT</td><td>{doc.receptor.rut}</td></tr>
-                {doc.receptor.giro && <tr><td>Giro</td><td>{doc.receptor.giro}</td></tr>}
-                {doc.receptor.direccion && <tr><td>Dirección</td><td>{doc.receptor.direccion}{doc.receptor.comuna ? ', ' + doc.receptor.comuna : ''}</td></tr>}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        <table className="print-items">
-          <thead>
-            <tr><th>Item</th><th>Cant.</th><th>P. Unitario</th><th>Subtotal</th></tr>
-          </thead>
-          <tbody>
-            {doc.items.map((i, idx) => (
-              <tr key={idx}>
-                <td>{i.nombre}</td>
-                <td>{i.cantidad}</td>
-                <td>{formatCLP(i.precioUnitario)}</td>
-                <td>{formatCLP(i.subtotal)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div className="print-totals">
-          <div className="print-total-row"><span>Neto</span><span>{formatCLP(doc.neto)}</span></div>
-          <div className="print-total-row"><span>IVA 19%</span><span>{formatCLP(doc.iva)}</span></div>
-          <div className="print-total-row print-total-row--grand"><span>TOTAL</span><span>{formatCLP(doc.total)}</span></div>
-        </div>
-
-        <div className="print-footer">
-          <p><strong>Forma de pago:</strong> {PAGO_LABELS[doc.formaPago] || doc.formaPago}</p>
-          {doc.referencias?.length > 0 && (
-            <p><strong>Referencias:</strong> {doc.referencias.map((r) => `${r.tipo} ${r.folio}`).join(' · ')}</p>
-          )}
-          {doc.notaVentaId && <p className="text-muted" style={{fontSize:'11px', marginTop:'4px'}}>Originado desde {doc.notaVentaFolio ? NV(doc.notaVentaFolio) : 'Nota de Venta'}</p>}
-        </div>
-      </div>
-    </div>
-  )
 }
 
 /* ── Emission form ─────────────────────────────────────────────────────────── */
@@ -264,7 +191,7 @@ function EmitForm({ products, clients, prefillNote, onSubmit, onCancel }) {
 }
 
 /* ── Invoice main ─────────────────────────────────────────────────────────── */
-export function Invoice({ products, clients, notes, docs, onCreate, onRemove, onUpdateNote, prefillNote, onClearPrefill }) {
+export function Invoice({ products, clients, docs, onCreate, onRemove, prefillNote, onClearPrefill }) {
   const [mode, setMode]       = useState(prefillNote ? 'emit' : 'list')
   const [printId, setPrintId] = useState(null)
   const [filter, setFilter]   = useState('todos')
@@ -276,7 +203,6 @@ export function Invoice({ products, clients, notes, docs, onCreate, onRemove, on
 
   const handleSubmit = (docData) => {
     const doc = onCreate(docData)
-    if (docData.notaVentaId) onUpdateNote(docData.notaVentaId, { estado: 'facturada' })
     if (onClearPrefill) onClearPrefill()
     setPrintId(doc.id)
     setMode('list')
@@ -311,8 +237,7 @@ export function Invoice({ products, clients, notes, docs, onCreate, onRemove, on
     <div className="invoice">
       <div className="module-header">
         <div>
-          <h2>{prefillNote ? `Emitir desde ${NV(prefillNote.folio)}` : 'Emitir Documento'}</h2>
-          {prefillNote?.cliente && <p className="module-sub">{prefillNote.cliente.razonSocial} · {prefillNote.cliente.rut}</p>}
+          <h2>Emitir Documento</h2>
         </div>
         <button type="button" onClick={handleCancel}>VOLVER</button>
       </div>
