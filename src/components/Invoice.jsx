@@ -266,9 +266,11 @@ function EmitForm({ products, clients, prefillNote, onSubmit, onCancel }) {
 /* ── Invoice main ─────────────────────────────────────────────────────────── */
 export function Invoice({ products, clients, notes, docs, onCreate, onRemove, onUpdateNote, prefillNote, onClearPrefill }) {
   const [mode, setMode]       = useState(prefillNote ? 'emit' : 'list')
-  const [printDoc, setPrint]  = useState(null)
+  const [printId, setPrintId] = useState(null)
   const [filter, setFilter]   = useState('todos')
   const templateRef           = useRef(null)
+
+  const printDoc = printId ? (docs.find((d) => d.id === printId) ?? null) : null
 
   useEffect(() => { if (prefillNote) setMode('emit') }, [prefillNote])
 
@@ -276,7 +278,7 @@ export function Invoice({ products, clients, notes, docs, onCreate, onRemove, on
     const doc = onCreate(docData)
     if (docData.notaVentaId) onUpdateNote(docData.notaVentaId, { estado: 'facturada' })
     if (onClearPrefill) onClearPrefill()
-    setPrint(doc)
+    setPrintId(doc.id)
     setMode('list')
   }
 
@@ -296,7 +298,7 @@ export function Invoice({ products, clients, notes, docs, onCreate, onRemove, on
           folio={FOLIO_FMT(printDoc.tipoDocumento, printDoc.folio)}
           receptor={printDoc.receptor}
           total={printDoc.total}
-          onClose={() => setPrint(null)}
+          onClose={() => setPrintId(null)}
         />
         <div className="doc-page-wrap">
           <InvoiceTemplate ref={templateRef} doc={printDoc} />
@@ -357,7 +359,7 @@ export function Invoice({ products, clients, notes, docs, onCreate, onRemove, on
                   <td>{formatCLP(d.iva)}</td>
                   <td><strong>{formatCLP(d.total)}</strong></td>
                   <td>
-                    <button type="button" onClick={() => setPrint(d)}>VER</button>
+                    <button type="button" onClick={() => setPrintId(d.id)}>VER</button>
                     <button type="button" className="btn-danger" onClick={() => onRemove(d.id)}>ELIMINAR</button>
                   </td>
                 </tr>
