@@ -53,6 +53,12 @@ const ICON_LOGOUT = (
   </svg>
 )
 
+const ICON_CHEVRON = (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+)
+
 export default function App() {
   const [authed, setAuthed] = useState(() => localStorage.getItem('pos_auth') === '1')
 
@@ -75,8 +81,15 @@ export default function App() {
 
 function AppContent({ onLogout }) {
   const [tab, setTab]             = useState('terminal')
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('sidebar_collapsed') === '1')
   const [queryMode, setQueryMode] = useState(false)
   const [toast, setToast]         = useState(null)
+
+  const toggleCollapsed = () => setCollapsed((c) => {
+    const next = !c
+    localStorage.setItem('sidebar_collapsed', next ? '1' : '0')
+    return next
+  })
 
   const { products, create: createProduct, update: updateProduct, remove: removeProduct } = useProducts()
   const { sales,    create: createSale }                                                  = useSales()
@@ -130,19 +143,22 @@ function AppContent({ onLogout }) {
 
   return (
     <div className="app">
-      <aside className="sidebar">
+      <aside className={`sidebar${collapsed ? ' sidebar--collapsed' : ''}`}>
         <div className="sidebar__logo">
           <img src={logo} alt="FIT SUPPS" className="logo-img" />
+          <button className="sidebar__collapse-btn" onClick={toggleCollapsed} title={collapsed ? 'Expandir menú' : 'Contraer menú'}>
+            {ICON_CHEVRON}
+          </button>
         </div>
         <nav className="sidebar__nav">
           {NAV.map(({ id, label, icon }) => (
-            <button key={id} onClick={() => setTab(id)} className={`nav-item${tab === id ? ' nav-item--active' : ''}`}>
+            <button key={id} onClick={() => setTab(id)} title={label} className={`nav-item${tab === id ? ' nav-item--active' : ''}`}>
               <span className="nav-item__icon">{icon}</span>
               <span className="nav-item__label">{label}</span>
             </button>
           ))}
         </nav>
-        <button className="sidebar__logout" onClick={onLogout}>
+        <button className="sidebar__logout" onClick={onLogout} title="Cerrar sesión">
           <span className="sidebar__logout-icon">{ICON_LOGOUT}</span>
           <span className="sidebar__logout-label">Cerrar sesión</span>
         </button>

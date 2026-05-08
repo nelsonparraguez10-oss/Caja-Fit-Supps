@@ -49,27 +49,54 @@ body {
   flex-direction: column;
   flex-shrink: 0;
   padding: 0;
+  overflow: hidden;
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.sidebar--collapsed { width: 64px; }
+
 .sidebar__logo {
-  padding: 24px 20px 20px;
+  padding: 16px 12px 16px 16px;
   border-bottom: 1px solid var(--border-sub);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 68px;
+  flex-shrink: 0;
 }
+.sidebar--collapsed .sidebar__logo { justify-content: center; padding: 16px 0; }
 
 .logo-img {
-  width: 148px;
+  width: 120px;
   height: auto;
   display: block;
   object-fit: contain;
+  flex-shrink: 0;
+  transition: opacity 0.18s ease, max-width 0.22s cubic-bezier(0.4,0,0.2,1);
+  max-width: 120px;
+  opacity: 1;
 }
+.sidebar--collapsed .logo-img { max-width: 0; opacity: 0; }
+
+.sidebar__collapse-btn {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--border-sub);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, transform 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+.sidebar__collapse-btn:hover { background: var(--border); color: var(--text1); }
+.sidebar--collapsed .sidebar__collapse-btn { transform: rotate(180deg); }
 
 .sidebar__nav {
   display: flex;
   flex-direction: column;
-  padding: 12px 12px;
+  padding: 10px 8px;
   gap: 2px;
   flex: 1;
 }
@@ -78,11 +105,11 @@ body {
   background: none;
   border: none;
   color: var(--text2);
-  padding: 10px 14px;
+  padding: 10px 12px;
   border-radius: var(--r-sm);
   cursor: pointer;
   text-align: left;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 400;
   letter-spacing: 0;
   transition: color .15s, background .15s;
@@ -90,15 +117,40 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  position: relative;
+  white-space: nowrap;
 }
-.nav-item:hover    { background: var(--bg); color: var(--text1); }
-.nav-item--active  { color: var(--accent); font-weight: 600; background: rgba(10,132,255,.15); }
+.nav-item:hover    { background: rgba(255,255,255,.05); color: var(--text1); }
+.nav-item--active  { color: var(--accent); font-weight: 600; background: rgba(10,132,255,.12); }
+.nav-item--active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 20%; bottom: 20%;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
 
-/* Íconos y spans de nav: ocultos en desktop, visibles en móvil */
-.nav-item__icon       { display: none; flex-shrink: 0; }
-.sidebar__logout-icon { display: none; }
+.nav-item__icon       { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sidebar__logout-icon { display: flex; flex-shrink: 0; }
 
-.sidebar__version { padding: 12px 20px 16px; font-size: 11px; color: var(--text3); }
+.nav-item__label {
+  transition: opacity 0.18s ease, max-width 0.22s cubic-bezier(0.4,0,0.2,1);
+  max-width: 160px;
+  opacity: 1;
+  overflow: hidden;
+}
+.sidebar--collapsed .nav-item__label { max-width: 0; opacity: 0; }
+.sidebar--collapsed .nav-item { justify-content: center; padding: 10px; gap: 0; }
+
+.sidebar__version {
+  padding: 10px 16px 14px;
+  font-size: 11px;
+  color: var(--text3);
+  white-space: nowrap;
+  transition: opacity 0.18s ease;
+}
+.sidebar--collapsed .sidebar__version { opacity: 0; }
 
 /* ── Main ────────────────────────────────────────────────────────────────────── */
 .main {
@@ -1141,12 +1193,24 @@ td button.btn-danger:hover { color: var(--danger);  }
 
 /* ── Sidebar logout ────────────────────────────────────────────────────────── */
 .sidebar__logout {
-  margin: 0 12px 4px; padding: 8px 14px; width: calc(100% - 24px);
+  margin: 0 8px 8px; padding: 8px 12px; width: calc(100% - 16px);
   background: none; border: 1px solid var(--border); border-radius: var(--r-sm);
-  color: var(--text2); font-size: 11px; font-weight: 600; letter-spacing: .05em;
-  cursor: pointer; text-align: left; transition: all .15s;
+  color: var(--text2); font-size: 12px; font-weight: 600; letter-spacing: .05em;
+  cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; gap: 8px;
+  white-space: nowrap; overflow: hidden;
 }
 .sidebar__logout:hover { border-color: var(--danger); color: var(--danger); }
+.sidebar--collapsed .sidebar__logout {
+  width: calc(100% - 16px);
+  justify-content: center;
+  padding: 8px;
+}
+.sidebar__logout-label {
+  transition: opacity 0.18s ease, max-width 0.22s cubic-bezier(0.4,0,0.2,1);
+  max-width: 160px; opacity: 1; overflow: hidden;
+}
+.sidebar--collapsed .sidebar__logout-label { max-width: 0; opacity: 0; }
 
 /* ── Mobile responsive ───────────────────────────────────────────────────── */
 @media (max-width: 768px) {
@@ -1631,9 +1695,10 @@ td { font-variant-numeric: tabular-nums; }
 
 /* ── 9. Sidebar glass (desktop) ─────────────────────────────────────── */
 .sidebar {
-  background: rgba(28,28,30,.96);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(22,22,24,.97);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1px solid rgba(255,255,255,.06);
 }
 
 /* ── 10. Toast — glass pill ─────────────────────────────────────────── */
