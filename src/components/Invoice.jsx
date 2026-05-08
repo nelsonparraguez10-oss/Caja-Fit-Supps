@@ -58,6 +58,11 @@ function EmitForm({ products, clients, prefillNote, onSubmit, onCancel }) {
     return products.filter((p) => p.name.toLowerCase().includes(q) || p.barcode.includes(q) || (p.marca || '').toLowerCase().includes(q)).slice(0, 8)
   }, [products, pSearch])
 
+  const [showManual, setShowManual] = useState(false)
+  const [manualNombre, setManualNombre] = useState('')
+  const [manualPrecio, setManualPrecio] = useState('')
+  const [manualCantidad, setManualCantidad] = useState(1)
+
   const addP = (p) => {
     setItems((prev) => {
       const ex = prev.find((i) => i.barcode === p.barcode)
@@ -65,6 +70,16 @@ function EmitForm({ products, clients, prefillNote, onSubmit, onCancel }) {
       return [...prev, { barcode: p.barcode, nombre: `${p.name}${p.variante ? ' — ' + p.variante : ''}`, precioUnitario: p.price, cantidad: 1, subtotal: p.price }]
     })
     setPS(''); setShowPSug(false)
+  }
+
+  const addManual = () => {
+    const nombre = manualNombre.trim()
+    const precio = parseFloat(manualPrecio) || 0
+    const cantidad = Math.max(1, parseInt(manualCantidad) || 1)
+    if (!nombre || precio <= 0) return
+    const key = `manual-${Date.now()}`
+    setItems((prev) => [...prev, { barcode: key, nombre, precioUnitario: precio, cantidad, subtotal: precio * cantidad }])
+    setManualNombre(''); setManualPrecio(''); setManualCantidad(1); setShowManual(false)
   }
 
   const updateQty = (bc, v) => {
@@ -186,7 +201,7 @@ function EmitForm({ products, clients, prefillNote, onSubmit, onCancel }) {
       <div className="note-section">
         <p className="section-label">AGREGAR PRODUCTOS</p>
         <div className="search-suggest">
-          <input type="text" placeholder="Buscar producto…" value={pSearch}
+          <input type="text" placeholder="Buscar producto en inventario…" value={pSearch}
             onChange={(e) => { setPS(e.target.value); setShowPSug(true) }}
             onFocus={() => setShowPSug(true)} onBlur={() => setTimeout(() => setShowPSug(false), 150)}
           />
@@ -201,6 +216,55 @@ function EmitForm({ products, clients, prefillNote, onSubmit, onCancel }) {
             </ul>
           )}
         </div>
+        <button type="button" className="manual-toggle" onClick={() => setShowManual((v) => !v)}>
+          {showManual ? '— Ocultar ingreso manual' : '+ Agregar ítem manualmente'}
+        </button>
+        {showManual && (
+          <div className="manual-form">
+            <div className="manual-form__fields">
+              <div className="manual-field manual-field--wide">
+                <label>Descripción del ítem</label>
+                <input
+                  type="text"
+                  placeholder="Ej: Proteína Whey 1kg"
+                  value={manualNombre}
+                  onChange={(e) => setManualNombre(e.target.value)}
+                />
+              </div>
+              <div className="manual-field">
+                <label>P. Unitario ($)</label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  min="0"
+                  step="1"
+                  value={manualPrecio}
+                  onChange={(e) => setManualPrecio(e.target.value)}
+                />
+              </div>
+              <div className="manual-field">
+                <label>Cantidad</label>
+                <input
+                  type="number"
+                  placeholder="1"
+                  min="1"
+                  step="1"
+                  value={manualCantidad}
+                  onChange={(e) => setManualCantidad(e.target.value)}
+                />
+              </div>
+              {manualNombre && parseFloat(manualPrecio) > 0 && (
+                <div className="manual-field manual-field--preview">
+                  <label>Subtotal</label>
+                  <span className="manual-subtotal">{formatCLP((parseFloat(manualPrecio) || 0) * (parseInt(manualCantidad) || 1))}</span>
+                </div>
+              )}
+            </div>
+            <button type="button" className="manual-add-btn" onClick={addManual} disabled={!manualNombre.trim() || !(parseFloat(manualPrecio) > 0)}>
+              AGREGAR ÍTEM
+            </button>
+          </div>
+        )}
       </div>
 
       {items.length > 0 && (

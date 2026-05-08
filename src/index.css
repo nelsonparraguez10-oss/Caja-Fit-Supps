@@ -1402,6 +1402,64 @@ td button.btn-danger:hover { color: var(--danger);  }
   border-radius: var(--r-sm); border-left: 3px solid var(--success);
 }
 
+/* ── Manual item form ───────────────────────────────────────────────── */
+.manual-toggle {
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 0;
+  letter-spacing: 0.02em;
+}
+.manual-toggle:hover { color: var(--accent-dk); }
+
+.manual-form {
+  margin-top: 10px;
+  padding: 14px;
+  background: rgba(10,132,255,0.06);
+  border: 1px solid rgba(10,132,255,0.18);
+  border-radius: var(--r-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.manual-form__fields {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+@media (max-width: 768px) { .manual-form__fields { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .manual-form__fields { grid-template-columns: 1fr; } }
+
+.manual-field { display: flex; flex-direction: column; gap: 5px; }
+.manual-field label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--text3);
+}
+.manual-field--wide { grid-column: 1 / -1; }
+@media (min-width: 769px) { .manual-field--wide { grid-column: unset; } }
+.manual-field--preview { justify-content: flex-end; }
+.manual-subtotal { font-size: 15px; font-weight: 600; color: var(--text1); }
+
+.manual-add-btn {
+  align-self: flex-start;
+  padding: 8px 18px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+.manual-add-btn:disabled { opacity: 0.35; cursor: default; }
+.manual-add-btn:not(:disabled):hover { background: var(--accent-dk); }
+
 /* ══════════════════════════════════════════════════════════════════════
    PREMIUM UI  ·  Apple HIG + POS Ergonomics
    ― tokens · micro-interacciones · tipografía · profundidad · ergonomía
