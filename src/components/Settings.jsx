@@ -77,7 +77,7 @@ export function Settings({ cfg, onSave }) {
     <div className="cfg-module">
       <div className="module-header">
         <div>
-          <h2>Configuración</h2>
+          <h2>Configuración de Cobros POS</h2>
           <p className="module-sub">Tasas de comisión por agente de pago</p>
         </div>
       </div>
@@ -85,7 +85,7 @@ export function Settings({ cfg, onSave }) {
       {/* GETNET */}
       <div className="cfg-card">
         <div className="cfg-card__header">
-          <h3 className="cfg-card__title">GETNET — Punto de Venta</h3>
+          <h3 className="cfg-card__title">Punto de Venta</h3>
           <p className="cfg-card__sub">Aplica sobre el total de la venta en cobros con tarjeta física</p>
         </div>
         <RateRow
@@ -103,7 +103,7 @@ export function Settings({ cfg, onSave }) {
       {/* Mercado Pago */}
       <div className="cfg-card">
         <div className="cfg-card__header">
-          <h3 className="cfg-card__title">Mercado Pago — E-Commerce</h3>
+          <h3 className="cfg-card__title">E-Commerce</h3>
           <p className="cfg-card__sub">Comisión descontada automáticamente por la plataforma</p>
         </div>
         <RateRow
