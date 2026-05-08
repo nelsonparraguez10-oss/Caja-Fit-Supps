@@ -166,7 +166,7 @@ export const InvoiceTemplate = forwardRef(function InvoiceTemplate({ doc }, ref)
               {doc.referencias.map((r, i) => (
                 <tr key={i}>
                   <td>{r.tipo}</td>
-                  <td>{r.folio ? String(r.folio).padStart(4, '0') : '—'}</td>
+                  <td>{r.folio || '—'}</td>
                   <td>{r.fecha || '—'}</td>
                   <td>{r.razon || '—'}</td>
                 </tr>

@@ -38,6 +38,9 @@ function EmitForm({ products, clients, prefillNote, onSubmit, onCancel }) {
   const [pSearch, setPS]          = useState('')
   const [showPSug, setShowPSug]   = useState(false)
   const [items, setItems]         = useState(prefillNote?.items || [])
+  const [ocNumero, setOcNumero]   = useState('')
+  const [ocFecha, setOcFecha]     = useState(new Date().toISOString().slice(0, 10))
+  const [ocGlosa, setOcGlosa]     = useState('')
 
   useEffect(() => {
     if (prefillNote) { setTipo('factura'); setReceptor(prefillNote.cliente || null); setCS(prefillNote.cliente?.razonSocial || ''); setItems(prefillNote.items) }
@@ -73,14 +76,21 @@ function EmitForm({ products, clients, prefillNote, onSubmit, onCancel }) {
 
   const handleEmit = () => {
     if (!items.length) return
+    const referencias = []
+    if (tipo === 'factura' && ocNumero.trim()) {
+      referencias.push({
+        tipo:  'Orden de Compra',
+        folio: ocNumero.trim(),
+        fecha: ocFecha,
+        razon: ocGlosa.trim() || 'Según Orden de Compra',
+      })
+    }
     const doc = {
       tipoDocumento: tipo,
       formaPago,
       receptor: tipo === 'factura' ? receptor : null,
       items,
-      referencias: prefillNote ? [{ tipo: 'NotaVenta', folio: prefillNote.folio, fecha: prefillNote.date, razon: 'Pedido confirmado' }] : [],
-      notaVentaId:    prefillNote?.id    || null,
-      notaVentaFolio: prefillNote?.folio || null,
+      referencias,
       ...totals,
     }
     onSubmit(doc)
@@ -130,6 +140,45 @@ function EmitForm({ products, clients, prefillNote, onSubmit, onCancel }) {
               {receptor.giro && <span className="text-muted">{receptor.giro}</span>}
               <button type="button" onClick={() => { setReceptor(null); setCS('') }}>CAMBIAR</button>
             </div>
+          )}
+        </div>
+      )}
+
+      {tipo === 'factura' && (
+        <div className="note-section">
+          <p className="section-label">ORDEN DE COMPRA <span className="oc-optional">(opcional)</span></p>
+          <div className="oc-grid">
+            <div className="oc-field">
+              <label className="oc-label">N° Orden de Compra</label>
+              <input
+                type="text"
+                placeholder="Ej: OC-001234"
+                value={ocNumero}
+                onChange={(e) => setOcNumero(e.target.value)}
+              />
+            </div>
+            <div className="oc-field">
+              <label className="oc-label">Fecha OC</label>
+              <input
+                type="date"
+                value={ocFecha}
+                onChange={(e) => setOcFecha(e.target.value)}
+              />
+            </div>
+            <div className="oc-field oc-field--wide">
+              <label className="oc-label">Glosa / descripción</label>
+              <input
+                type="text"
+                placeholder="Según Orden de Compra"
+                value={ocGlosa}
+                onChange={(e) => setOcGlosa(e.target.value)}
+              />
+            </div>
+          </div>
+          {ocNumero.trim() && (
+            <p className="oc-preview">
+              Se incluirá en la factura: <strong>Orden de Compra N° {ocNumero.trim()}</strong> · {ocFecha}
+            </p>
           )}
         </div>
       )}
