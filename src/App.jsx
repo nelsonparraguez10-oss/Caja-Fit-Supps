@@ -8,6 +8,7 @@ import { Expenses }     from './components/Expenses'
 import { Analytics }    from './components/Analytics'
 import { Clients }      from './components/Clients'
 import { Documents }    from './components/Documents'
+import { Login }        from './components/Login'
 import { useCart }      from './hooks/useCart'
 import { useProducts, useSales, useExpenses, useExpenseTemplates, useClients } from './hooks/useDB'
 
@@ -21,9 +22,17 @@ const NAV = [
 ]
 
 export default function App() {
+  const [authed, setAuthed] = useState(() => localStorage.getItem('pos_auth') === '1')
   const [tab, setTab]             = useState('terminal')
   const [queryMode, setQueryMode] = useState(false)
   const [toast, setToast]         = useState(null)
+
+  if (!authed) return (
+    <Login onSuccess={() => {
+      localStorage.setItem('pos_auth', '1')
+      setAuthed(true)
+    }} />
+  )
 
   const { products, create: createProduct, update: updateProduct, remove: removeProduct } = useProducts()
   const { sales,    create: createSale }                                                  = useSales()
@@ -87,7 +96,13 @@ export default function App() {
             </button>
           ))}
         </nav>
-        <p className="sidebar__version">v3.1.0 — local</p>
+        <button
+          className="sidebar__logout"
+          onClick={() => { localStorage.removeItem('pos_auth'); setAuthed(false) }}
+        >
+          Cerrar sesión
+        </button>
+        <p className="sidebar__version">v3.1.0</p>
       </aside>
 
       <main className="main">

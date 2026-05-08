@@ -1097,3 +1097,46 @@ td button.btn-danger:hover { color: var(--danger);  }
 .products-table td { vertical-align: middle; }
 
 .text-warn { color: var(--warning); }
+
+/* ── Login screen ──────────────────────────────────────────────────────────── */
+.login-screen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: var(--bg-deep);
+}
+.login-card {
+  width: 360px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 40px 36px 32px; display: flex; flex-direction: column; align-items: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,.4);
+}
+.login-logo     { width: 120px; margin-bottom: 10px; }
+.login-subtitle { font-size: 13px; color: var(--text2); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 32px; }
+.login-form     { width: 100%; display: flex; flex-direction: column; gap: 16px; }
+.login-field    { display: flex; flex-direction: column; gap: 6px; }
+.login-label    { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: .05em; text-transform: uppercase; }
+.login-input {
+  width: 100%; padding: 11px 14px; border-radius: var(--r-sm);
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text1); font-size: 14px; box-sizing: border-box;
+}
+.login-input:focus         { outline: none; border-color: var(--accent); }
+.login-input--error        { border-color: var(--danger) !important; }
+.login-error { font-size: 12px; color: var(--danger); text-align: center; margin: -4px 0; }
+.login-btn {
+  margin-top: 4px; padding: 13px; border-radius: var(--r-sm);
+  background: var(--accent); border: none; color: #fff;
+  font-size: 13px; font-weight: 700; letter-spacing: .08em; cursor: pointer;
+  transition: background .15s;
+}
+.login-btn:hover:not(:disabled) { background: #0077ed; }
+.login-btn:disabled { opacity: .5; cursor: default; }
+.login-footer { margin-top: 24px; font-size: 11px; color: var(--text3); }
+
+/* ── Sidebar logout ────────────────────────────────────────────────────────── */
+.sidebar__logout {
+  margin: 0 12px 4px; padding: 8px 14px; width: calc(100% - 24px);
+  background: none; border: 1px solid var(--border); border-radius: var(--r-sm);
+  color: var(--text2); font-size: 11px; font-weight: 600; letter-spacing: .05em;
+  cursor: pointer; text-align: left; transition: all .15s;
+}
+.sidebar__logout:hover { border-color: var(--danger); color: var(--danger); }
