@@ -170,14 +170,163 @@ body {
   background: var(--bg);
 }
 
+/* ── Terminal wrapper + subnav ───────────────────────────────────────────────── */
+.terminal-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.terminal-subnav {
+  display: flex;
+  gap: 4px;
+  padding: 0 0 14px;
+  flex-shrink: 0;
+}
+
+.terminal-tab {
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  padding: 6px 14px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: color .15s, background .15s;
+}
+.terminal-tab:hover         { color: var(--text1); background: rgba(255,255,255,.05); }
+.terminal-tab--active       { color: var(--accent); background: rgba(10,132,255,.12); }
+
 /* ── Sales layout ────────────────────────────────────────────────────────────── */
 .sales-layout {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: 100%;
+  flex: 1;
   overflow: hidden;
 }
+
+/* ── Sales History ───────────────────────────────────────────────────────────── */
+.sales-history {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sale-datetime      { display: flex; flex-direction: column; gap: 1px; }
+.sale-datetime span { line-height: 1.3; }
+
+.sale-channel-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.sale-channel-badge--pos  { background: rgba(10,132,255,.15); color: var(--accent); }
+.sale-channel-badge--ecom { background: rgba(191,90,242,.15); color: var(--ecom); }
+
+.row--voided td { opacity: 0.45; }
+
+.badge-voided {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--danger);
+  opacity: 0.6;
+}
+
+.btn-void {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 0.75;
+  transition: opacity .15s, background .15s;
+}
+.btn-void:hover { opacity: 1; background: rgba(255,69,58,.1); }
+
+/* ── Void modal ──────────────────────────────────────────────────────────────── */
+.void-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 24px;
+}
+
+.void-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 28px 28px 24px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+
+.void-modal__title {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.void-modal__body {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.55;
+  margin-bottom: 24px;
+}
+
+.void-modal__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.void-modal__cancel {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  padding: 8px 16px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.void-modal__cancel:hover { border-color: var(--text2); color: var(--text1); }
+
+.void-modal__confirm {
+  background: var(--danger);
+  border: none;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 8px 18px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.void-modal__confirm:hover { opacity: 0.88; }
 
 /* ── Scanner ─────────────────────────────────────────────────────────────────── */
 .scanner-wrap {
@@ -1330,7 +1479,8 @@ td button.btn-danger:hover { color: var(--danger);  }
   }
 
   /* Terminal */
-  .sales-layout    { height: auto; overflow: visible; }
+  .terminal-wrapper { height: auto; overflow: visible; }
+  .sales-layout     { height: auto; overflow: visible; flex: none; }
   .cart            { flex: none; overflow: visible; }
   .cart__items     { max-height: 240px; }
   .inline-input    { width: 120px; }

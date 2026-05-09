@@ -27,8 +27,10 @@ export const calcInventoryCapital = (prods) =>
   prods.reduce((acc, p) => acc + p.stock * calcNeto(p.cost), 0)
 
 export const calcAnalytics = (sales, expenses) => {
+  const activeSales = sales.filter((s) => s.status !== 'VOIDED')
+
   // Venta bruta = monto real recibido (ECOM usa override MP, POS usa precio lista)
-  const ventasBrutas   = sales.reduce((acc, s) => acc + (s.effectiveTotal ?? s.total ?? 0), 0)
+  const ventasBrutas   = activeSales.reduce((acc, s) => acc + (s.effectiveTotal ?? s.total ?? 0), 0)
   const ivaTotalVentas = calcIVA(ventasBrutas)
   const ventasNetas    = calcNeto(ventasBrutas)
 
@@ -42,19 +44,19 @@ export const calcAnalytics = (sales, expenses) => {
   const ivaPorPagar = Math.max(0, debitoFiscal - creditoFiscal)
 
   // Comisiones tarjeta POS (card legacy + debito + credito)
-  const comisionesTargeta = sales
+  const comisionesTargeta = activeSales
     .filter((s) => ['card', 'debito', 'credito'].includes(s.paymentMethod))
     .reduce((acc, s) => acc + (s.cardCommission || 0), 0)
 
   // Logística
-  const ingresoEnvios = sales.reduce((acc, s) => acc + (s.shipping?.cobro || 0), 0)
-  const costoEnvios   = sales.reduce((acc, s) => acc + (s.shipping?.costo || 0), 0)
+  const ingresoEnvios = activeSales.reduce((acc, s) => acc + (s.shipping?.cobro || 0), 0)
+  const costoEnvios   = activeSales.reduce((acc, s) => acc + (s.shipping?.costo || 0), 0)
   const margenEnvios  = ingresoEnvios - costoEnvios
 
   const gastosBase  = expenses.reduce((acc, e) => acc + e.amount, 0)
   const gastosTotal = gastosBase + comisionesTargeta
 
-  const costoAdquisicion = sales.reduce(
+  const costoAdquisicion = activeSales.reduce(
     (acc, s) => acc + s.items.reduce((a, i) => a + (i.cost || 0) * i.quantity, 0),
     0,
   )

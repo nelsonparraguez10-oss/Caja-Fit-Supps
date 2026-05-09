@@ -77,6 +77,25 @@ export const sales = {
   },
 
   delete: (id) => write(KEYS.SALES, read(KEYS.SALES).filter((s) => s.id !== id)),
+
+  voidSale: (id) => {
+    const allSales = read(KEYS.SALES)
+    const sale = allSales.find((s) => s.id === id)
+    if (!sale || sale.status === 'VOIDED') return null
+    // Devolver stock al inventario
+    write(
+      KEYS.PRODUCTS,
+      read(KEYS.PRODUCTS).map((p) => {
+        const item = sale.items.find((i) => i.barcode === p.barcode)
+        return item ? { ...p, stock: p.stock + item.quantity } : p
+      }),
+    )
+    // Marcar como anulada
+    write(
+      KEYS.SALES,
+      allSales.map((s) => s.id === id ? { ...s, status: 'VOIDED', voidedAt: new Date().toISOString() } : s),
+    )
+  },
 }
 
 // ── Expenses (transacciones reales) ───────────────────────────────────────────

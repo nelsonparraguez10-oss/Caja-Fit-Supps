@@ -32,8 +32,9 @@ export function useSales() {
   return {
     sales,
     refresh,
-    create: (sale) => { const s = dbSales.create(sale); refresh(); return s },
-    remove: (id)   => { dbSales.delete(id); refresh() },
+    create:    (sale) => { const s = dbSales.create(sale); refresh(); return s },
+    remove:    (id)   => { dbSales.delete(id); refresh() },
+    voidSale:  (id)   => { dbSales.voidSale(id); refresh() },
   }
 }
 

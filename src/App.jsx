@@ -11,6 +11,7 @@ import { Clients }      from './components/Clients'
 import { Documents }    from './components/Documents'
 import { Login }        from './components/Login'
 import { Settings }     from './components/Settings'
+import { SalesHistory } from './components/SalesHistory'
 import { useCart }      from './hooks/useCart'
 import { useSettings }  from './hooks/useSettings'
 import { useProducts, useSales, useExpenses, useExpenseTemplates, useClients } from './hooks/useDB'
@@ -81,10 +82,11 @@ export default function App() {
 }
 
 function AppContent({ onLogout }) {
-  const [tab, setTab]             = useState('terminal')
-  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('sidebar_collapsed') === '1')
-  const [queryMode, setQueryMode] = useState(false)
-  const [toast, setToast]         = useState(null)
+  const [tab, setTab]               = useState('terminal')
+  const [salesSubTab, setSalesSubTab] = useState('nueva')
+  const [collapsed, setCollapsed]   = useState(() => localStorage.getItem('sidebar_collapsed') === '1')
+  const [queryMode, setQueryMode]   = useState(false)
+  const [toast, setToast]           = useState(null)
 
   const toggleCollapsed = () => setCollapsed((c) => {
     const next = !c
@@ -92,8 +94,8 @@ function AppContent({ onLogout }) {
     return next
   })
 
-  const { products, create: createProduct, update: updateProduct, remove: removeProduct } = useProducts()
-  const { sales,    create: createSale }                                                  = useSales()
+  const { products, refresh: refreshProducts, create: createProduct, update: updateProduct, remove: removeProduct } = useProducts()
+  const { sales, create: createSale, voidSale }                                                                     = useSales()
 
   const { expenses, refresh: refreshExpenses,
           create: createExpense, update: updateExpense, remove: removeExpense } = useExpenses()
@@ -137,6 +139,12 @@ function AppContent({ onLogout }) {
     showToast('Venta registrada correctamente')
   }
 
+  const handleVoidSale = (id) => {
+    voidSale(id)
+    refreshProducts()
+    showToast('Venta anulada — stock devuelto al inventario', 'success')
+  }
+
   const handleImputeTemplate = (id) => {
     _imputeNow(id)
     refreshExpenses()
@@ -170,29 +178,47 @@ function AppContent({ onLogout }) {
 
       <main className="main">
         {tab === 'terminal' && (
-          <div className="sales-layout">
-            <ScannerInput
-              onScan={cart.addItem}
-              queryMode={queryMode}
-              onToggleQueryMode={() => setQueryMode((m) => !m)}
-            />
-            <Cart
-              items={cart.items}
-              channel={cart.channel}               setChannel={cart.setChannel}
-              paymentMethod={cart.paymentMethod}   setPaymentMethod={cart.setPaymentMethod}
-              ecomReceived={cart.ecomReceived}     setEcomReceived={cart.setEcomReceived}
-              cobroEnvio={cart.cobroEnvio}         setCobroEnvio={cart.setCobroEnvio}
-              costoEnvio={cart.costoEnvio}         setCostoEnvio={cart.setCostoEnvio}
-              listTotal={cart.listTotal}
-              effectiveTotal={cart.effectiveTotal}
-              cardCommission={cart.cardCommission}
-              mpCommission={cart.mpCommission}
-              cfg={cfg}
-              shippingMargin={cart.shippingMargin}
-              onRemove={cart.removeItem}
-              onUpdateQuantity={cart.updateQuantity}
-              onCheckout={handleCheckout}
-            />
+          <div className="terminal-wrapper">
+            <div className="terminal-subnav">
+              <button
+                className={`terminal-tab${salesSubTab === 'nueva' ? ' terminal-tab--active' : ''}`}
+                tabIndex={-1}
+                onClick={() => setSalesSubTab('nueva')}
+              >NUEVA VENTA</button>
+              <button
+                className={`terminal-tab${salesSubTab === 'historial' ? ' terminal-tab--active' : ''}`}
+                tabIndex={-1}
+                onClick={() => setSalesSubTab('historial')}
+              >HISTORIAL</button>
+            </div>
+            {salesSubTab === 'nueva' ? (
+              <div className="sales-layout">
+                <ScannerInput
+                  onScan={cart.addItem}
+                  queryMode={queryMode}
+                  onToggleQueryMode={() => setQueryMode((m) => !m)}
+                />
+                <Cart
+                  items={cart.items}
+                  channel={cart.channel}               setChannel={cart.setChannel}
+                  paymentMethod={cart.paymentMethod}   setPaymentMethod={cart.setPaymentMethod}
+                  ecomReceived={cart.ecomReceived}     setEcomReceived={cart.setEcomReceived}
+                  cobroEnvio={cart.cobroEnvio}         setCobroEnvio={cart.setCobroEnvio}
+                  costoEnvio={cart.costoEnvio}         setCostoEnvio={cart.setCostoEnvio}
+                  listTotal={cart.listTotal}
+                  effectiveTotal={cart.effectiveTotal}
+                  cardCommission={cart.cardCommission}
+                  mpCommission={cart.mpCommission}
+                  cfg={cfg}
+                  shippingMargin={cart.shippingMargin}
+                  onRemove={cart.removeItem}
+                  onUpdateQuantity={cart.updateQuantity}
+                  onCheckout={handleCheckout}
+                />
+              </div>
+            ) : (
+              <SalesHistory sales={sales} onVoid={handleVoidSale} />
+            )}
           </div>
         )}
 
