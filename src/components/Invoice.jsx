@@ -15,8 +15,8 @@ const calcTotals = (items) => {
 }
 
 const TIPO_LABELS  = { boleta: 'Boleta', factura: 'Factura' }
-const PAGO_LABELS  = { contado: 'Contado', transferencia: 'Transferencia', credito30: 'Crédito 30 días', credito60: 'Crédito 60 días' }
-const PAGO_OPTS    = Object.entries(PAGO_LABELS)
+const PAGO_LABELS  = { cash: 'Efectivo', transfer: 'Transferencia', debito: 'Débito', credito: 'Crédito' }
+const PAGO_METHODS = Object.entries(PAGO_LABELS)
 const FOLIO_FMT    = (tipo, n) => `${tipo === 'boleta' ? 'B' : 'F'}-${String(n).padStart(6, '0')}`
 
 // Emisor fijo — editable si se desea en el futuro via settings
@@ -31,7 +31,7 @@ const EMISOR = {
 /* ── Emission form ─────────────────────────────────────────────────────────── */
 function EmitForm({ products, clients, prefillNote, onSubmit, onCancel }) {
   const [tipo, setTipo]           = useState('boleta')
-  const [formaPago, setFormaPago] = useState('contado')
+  const [formaPago, setFormaPago] = useState('cash')
   const [receptor, setReceptor]   = useState(prefillNote?.cliente || null)
   const [cSearch, setCS]          = useState(prefillNote?.cliente?.razonSocial || '')
   const [showCSug, setShowCSug]   = useState(false)
@@ -123,10 +123,15 @@ function EmitForm({ products, clients, prefillNote, onSubmit, onCancel }) {
           </div>
         </div>
         <div>
-          <p className="section-label">FORMA DE PAGO</p>
-          <select value={formaPago} onChange={(e) => setFormaPago(e.target.value)} style={{ width: '200px' }}>
-            {PAGO_OPTS.map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-          </select>
+          <p className="section-label">MÉTODO DE PAGO</p>
+          <div className="payment-tabs">
+            {PAGO_METHODS.map(([k, v]) => (
+              <button key={k} type="button" tabIndex={-1}
+                className={`payment-tab${formaPago === k ? ' payment-tab--active' : ''}`}
+                onClick={() => setFormaPago(k)}
+              >{v}</button>
+            ))}
+          </div>
         </div>
       </div>
 
