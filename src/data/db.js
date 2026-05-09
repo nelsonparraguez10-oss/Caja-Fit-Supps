@@ -271,4 +271,13 @@ export const documents = {
   },
 
   delete: (id) => write(KEYS.DOCUMENTS, read(KEYS.DOCUMENTS).filter((d) => d.id !== id)),
+
+  voidDoc: (id) => {
+    write(
+      KEYS.DOCUMENTS,
+      read(KEYS.DOCUMENTS).map((d) =>
+        d.id === id ? { ...d, estado: 'ANULADA', anuladaAt: new Date().toISOString() } : d,
+      ),
+    )
+  },
 }

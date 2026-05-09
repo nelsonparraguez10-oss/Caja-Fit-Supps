@@ -14,7 +14,7 @@ import { Settings }     from './components/Settings'
 import { SalesHistory } from './components/SalesHistory'
 import { useCart }      from './hooks/useCart'
 import { useSettings }  from './hooks/useSettings'
-import { useProducts, useSales, useExpenses, useExpenseTemplates, useClients } from './hooks/useDB'
+import { useProducts, useSales, useExpenses, useExpenseTemplates, useClients, useDocuments } from './hooks/useDB'
 
 const NAV = [
   {
@@ -105,6 +105,8 @@ function AppContent({ onLogout }) {
           remove: removeTemplate, imputeNow: _imputeNow } = useExpenseTemplates()
 
   const { clients, create: createClient, update: updateClient, remove: removeClient } = useClients()
+
+  const { docs, create: createDoc, remove: removeDoc, voidDoc } = useDocuments()
 
   const { cfg, save: saveSettings } = useSettings()
   const cart = useCart(cfg)
@@ -230,7 +232,9 @@ function AppContent({ onLogout }) {
           <Clients clients={clients} onCreate={createClient} onUpdate={updateClient} onRemove={removeClient} />
         )}
 
-        {tab === 'documentos' && <Documents />}
+        {tab === 'documentos' && (
+          <Documents docs={docs} onCreate={createDoc} onRemove={removeDoc} onVoid={voidDoc} />
+        )}
 
         {tab === 'gastos' && (
           <Expenses
@@ -247,7 +251,7 @@ function AppContent({ onLogout }) {
         )}
 
         {tab === 'analiticas' && (
-          <Analytics sales={sales} expenses={expenses} products={products} />
+          <Analytics sales={sales} expenses={expenses} products={products} docs={docs} />
         )}
 
         {tab === 'configuracion' && (

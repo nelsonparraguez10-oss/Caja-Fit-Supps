@@ -304,11 +304,12 @@ function EmitForm({ products, clients, prefillNote, onSubmit, onCancel }) {
 }
 
 /* ── Invoice main ─────────────────────────────────────────────────────────── */
-export function Invoice({ products, clients, docs, onCreate, onRemove, prefillNote, onClearPrefill }) {
-  const [mode, setMode]       = useState(prefillNote ? 'emit' : 'list')
-  const [printId, setPrintId] = useState(null)
-  const [filter, setFilter]   = useState('todos')
-  const templateRef           = useRef(null)
+export function Invoice({ products, clients, docs, onCreate, onRemove, onVoid, prefillNote, onClearPrefill }) {
+  const [mode, setMode]         = useState(prefillNote ? 'emit' : 'list')
+  const [printId, setPrintId]   = useState(null)
+  const [filter, setFilter]     = useState('todos')
+  const [voidTarget, setVoidTarget] = useState(null)
+  const templateRef             = useRef(null)
 
   const printDoc = printId ? (docs.find((d) => d.id === printId) ?? null) : null
 
@@ -322,6 +323,11 @@ export function Invoice({ products, clients, docs, onCreate, onRemove, prefillNo
   }
 
   const handleCancel = () => { if (onClearPrefill) onClearPrefill(); setMode('list') }
+
+  const confirmVoidDoc = () => {
+    if (onVoid) onVoid(voidTarget.id)
+    setVoidTarget(null)
+  }
 
   const filtered = useMemo(() => {
     if (filter === 'todos') return docs
@@ -372,7 +378,7 @@ export function Invoice({ products, clients, docs, onCreate, onRemove, prefillNo
       <div className="doc-filter">
         {['todos', 'boleta', 'factura'].map((f) => (
           <button key={f} type="button" className={filter === f ? 'active' : ''} onClick={() => setFilter(f)}>
-            {f.toUpperCase()}
+            {f === 'todos' ? 'TODOS' : f === 'boleta' ? 'BOLETAS' : 'FACTURAS'}
           </button>
         ))}
       </div>
@@ -386,24 +392,52 @@ export function Invoice({ products, clients, docs, onCreate, onRemove, prefillNo
               <tr><th>Folio</th><th>Tipo</th><th>Fecha</th><th>Receptor</th><th>Pago</th><th>Neto</th><th>IVA</th><th>Total</th><th>Acciones</th></tr>
             </thead>
             <tbody>
-              {[...filtered].reverse().map((d) => (
-                <tr key={d.id}>
-                  <td className="td-code">{FOLIO_FMT(d.tipoDocumento, d.folio)}</td>
-                  <td><span className={`doc-badge doc-badge--${d.tipoDocumento}`}>{TIPO_LABELS[d.tipoDocumento]}</span></td>
-                  <td>{d.fechaEmision}</td>
-                  <td>{d.receptor?.razonSocial || <span className="text-muted">Consumidor Final</span>}</td>
-                  <td className="text-muted">{PAGO_LABELS[d.formaPago] || d.formaPago}</td>
-                  <td>{formatCLP(d.neto)}</td>
-                  <td>{formatCLP(d.iva)}</td>
-                  <td><strong>{formatCLP(d.total)}</strong></td>
-                  <td>
-                    <button type="button" onClick={() => setPrintId(d.id)}>VER</button>
-                    <button type="button" className="btn-danger" onClick={() => onRemove(d.id)}>ELIMINAR</button>
-                  </td>
-                </tr>
-              ))}
+              {[...filtered].reverse().map((d) => {
+                const anulada = d.estado === 'ANULADA'
+                return (
+                  <tr key={d.id} className={anulada ? 'row--voided' : ''}>
+                    <td className="td-code">{FOLIO_FMT(d.tipoDocumento, d.folio)}</td>
+                    <td><span className={`doc-badge doc-badge--${d.tipoDocumento}`}>{TIPO_LABELS[d.tipoDocumento]}</span></td>
+                    <td>{d.fechaEmision}</td>
+                    <td>{d.receptor?.razonSocial || <span className="text-muted">Consumidor Final</span>}</td>
+                    <td className="text-muted">{PAGO_LABELS[d.formaPago] || d.formaPago}</td>
+                    <td>{formatCLP(d.neto)}</td>
+                    <td>{formatCLP(d.iva)}</td>
+                    <td><strong className={anulada ? 'text-muted' : ''}>{formatCLP(d.total)}</strong></td>
+                    <td>
+                      {anulada ? (
+                        <span className="badge-voided">ANULADA</span>
+                      ) : (
+                        <>
+                          <button type="button" onClick={() => setPrintId(d.id)}>VER</button>
+                          <button type="button" className="btn-void" onClick={() => setVoidTarget(d)}>ANULAR</button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {voidTarget && (
+        <div className="void-overlay" onClick={() => setVoidTarget(null)}>
+          <div className="void-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="void-modal__title">Anular documento</h3>
+            <p className="void-modal__body">
+              ¿Confirmas anular{' '}
+              <strong>{TIPO_LABELS[voidTarget.tipoDocumento]} {FOLIO_FMT(voidTarget.tipoDocumento, voidTarget.folio)}</strong>?
+              <br />
+              El documento quedará marcado como <strong>ANULADA</strong> y será excluido de las analíticas.
+              Esta acción no puede deshacerse.
+            </p>
+            <div className="void-modal__actions">
+              <button className="void-modal__cancel" onClick={() => setVoidTarget(null)}>CANCELAR</button>
+              <button className="void-modal__confirm" onClick={confirmVoidDoc}>CONFIRMAR ANULACIÓN</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

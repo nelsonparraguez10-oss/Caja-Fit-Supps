@@ -99,7 +99,8 @@ export function useDocuments() {
   useEffect(() => { refresh() }, [refresh])
   return {
     docs, refresh,
-    create: (d)  => { const doc = dbDocuments.create(d); refresh(); return doc },
-    remove: (id) => { dbDocuments.delete(id); refresh() },
+    create:  (d)  => { const doc = dbDocuments.create(d); refresh(); return doc },
+    remove:  (id) => { dbDocuments.delete(id); refresh() },
+    voidDoc: (id) => { dbDocuments.voidDoc(id); refresh() },
   }
 }

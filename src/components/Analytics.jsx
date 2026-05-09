@@ -36,14 +36,15 @@ function BRow({ label, value, indent, separator, total, hide }) {
   )
 }
 
-export function Analytics({ sales, expenses, products }) {
+export function Analytics({ sales, expenses, products, docs = [] }) {
   const [period,           setPeriod]    = useState('month')
   const [stagnantDays,     setStagnant]  = useState(30)
 
-  const fSales    = useMemo(() => filterByPeriod(sales,    period),        [sales,    period])
-  const fExpenses = useMemo(() => filterByPeriod(expenses, period, 'date'), [expenses, period])
-  const m         = useMemo(() => calcAnalytics(fSales, fExpenses),         [fSales,   fExpenses])
-  const capital   = useMemo(() => calcInventoryCapital(products ?? []),      [products])
+  const fSales    = useMemo(() => filterByPeriod(sales,    period),                    [sales,    period])
+  const fExpenses = useMemo(() => filterByPeriod(expenses, period, 'date'),             [expenses, period])
+  const fDocs     = useMemo(() => filterByPeriod(docs,     period, 'fechaEmision'),     [docs,     period])
+  const m         = useMemo(() => calcAnalytics(fSales, fExpenses, fDocs),              [fSales, fExpenses, fDocs])
+  const capital   = useMemo(() => calcInventoryCapital(products ?? []),                  [products])
 
   /* ── Tendencia: productos más vendidos en el periodo ── */
   const trending = useMemo(() => {
@@ -88,7 +89,9 @@ export function Analytics({ sales, expenses, products }) {
       <div className="analytics__header">
         <div>
           <h2>Analiticas</h2>
-          <p className="analytics__sub">{fSales.length} venta(s) en el periodo</p>
+          <p className="analytics__sub">
+            {fSales.length} venta(s) retail · {m.countMayorista} doc(s) mayorista en el periodo
+          </p>
         </div>
         <div className="period-tabs">
           {PERIODS.map(({ key, label }) => (
@@ -109,7 +112,9 @@ export function Analytics({ sales, expenses, products }) {
         <h3 className="analytics__card-title">RESUMEN FINANCIERO</h3>
         <table className="breakdown">
           <tbody>
-            <BRow label="Venta Bruta (monto recibido)"  value={m.ventasBrutas}      />
+            <BRow label="Venta Bruta Total"              value={m.ventasBrutas}                                              />
+            <BRow label="  · Retail (POS / E-Commerce)" value={m.ventasRetailBrutas}    indent hide={m.ventasMayoristaBrutas === 0} />
+            <BRow label="  · Mayorista (Documentos)"    value={m.ventasMayoristaBrutas} indent hide={m.ventasMayoristaBrutas === 0} />
             <BRow label="IVA 19% (Debito Fiscal)"        value={-m.ivaTotalVentas}   indent separator />
             <BRow label="Venta Neta"                     value={m.ventasNetas}       />
             <BRow label="Costo de Productos"             value={-m.costoAdquisicion} indent separator />
@@ -147,10 +152,17 @@ export function Analytics({ sales, expenses, products }) {
             <thead><tr><th>Canal</th><th>Ventas</th><th>Recibido</th></tr></thead>
             <tbody>
               {['POS', 'ECOM'].map((ch) => {
-                const rows  = fSales.filter((s) => (s.channel ?? 'POS') === ch)
+                const rows  = fSales.filter((s) => s.status !== 'VOIDED' && (s.channel ?? 'POS') === ch)
                 const total = rows.reduce((a, s) => a + (s.effectiveTotal ?? s.total ?? 0), 0)
                 return <tr key={ch}><td>{CH_LABELS[ch]}</td><td>{rows.length}</td><td>{formatCLP(total)}</td></tr>
               })}
+              {m.countMayorista > 0 && (
+                <tr>
+                  <td><span className="sale-channel-badge sale-channel-badge--mayorista">Mayorista</span></td>
+                  <td>{m.countMayorista}</td>
+                  <td>{formatCLP(m.ventasMayoristaBrutas)}</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </section>

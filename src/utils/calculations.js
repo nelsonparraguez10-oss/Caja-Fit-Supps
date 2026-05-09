@@ -26,11 +26,18 @@ export const formatCLP = (n) =>
 export const calcInventoryCapital = (prods) =>
   prods.reduce((acc, p) => acc + p.stock * calcNeto(p.cost), 0)
 
-export const calcAnalytics = (sales, expenses) => {
+export const calcAnalytics = (sales, expenses, docs = []) => {
   const activeSales = sales.filter((s) => s.status !== 'VOIDED')
+  const activeDocs  = docs.filter((d) => d.estado !== 'ANULADA')
 
-  // Venta bruta = monto real recibido (ECOM usa override MP, POS usa precio lista)
-  const ventasBrutas   = activeSales.reduce((acc, s) => acc + (s.effectiveTotal ?? s.total ?? 0), 0)
+  // ── Ventas Retail (POS / ECOM) ───────────────────────────────────────────────
+  const ventasRetailBrutas = activeSales.reduce((acc, s) => acc + (s.effectiveTotal ?? s.total ?? 0), 0)
+
+  // ── Ventas Mayoristas (Documentos emitidos activos) ──────────────────────────
+  const ventasMayoristaBrutas = activeDocs.reduce((acc, d) => acc + (d.total || 0), 0)
+
+  // ── Totales combinados ───────────────────────────────────────────────────────
+  const ventasBrutas   = ventasRetailBrutas + ventasMayoristaBrutas
   const ivaTotalVentas = calcIVA(ventasBrutas)
   const ventasNetas    = calcNeto(ventasBrutas)
 
@@ -48,7 +55,7 @@ export const calcAnalytics = (sales, expenses) => {
     .filter((s) => ['card', 'debito', 'credito'].includes(s.paymentMethod))
     .reduce((acc, s) => acc + (s.cardCommission || 0), 0)
 
-  // Logística
+  // Logística (solo ventas retail)
   const ingresoEnvios = activeSales.reduce((acc, s) => acc + (s.shipping?.cobro || 0), 0)
   const costoEnvios   = activeSales.reduce((acc, s) => acc + (s.shipping?.costo || 0), 0)
   const margenEnvios  = ingresoEnvios - costoEnvios
@@ -56,10 +63,13 @@ export const calcAnalytics = (sales, expenses) => {
   const gastosBase  = expenses.reduce((acc, e) => acc + e.amount, 0)
   const gastosTotal = gastosBase + comisionesTargeta
 
-  const costoAdquisicion = activeSales.reduce(
-    (acc, s) => acc + s.items.reduce((a, i) => a + (i.cost || 0) * i.quantity, 0),
-    0,
+  const costoRetail = activeSales.reduce(
+    (acc, s) => acc + s.items.reduce((a, i) => a + (i.cost || 0) * i.quantity, 0), 0,
   )
+  const costoMayorista = activeDocs.reduce(
+    (acc, d) => acc + d.items.reduce((a, i) => a + (i.cost || 0) * (i.cantidad || i.quantity || 1), 0), 0,
+  )
+  const costoAdquisicion = costoRetail + costoMayorista
 
   const margenProductos = ventasNetas - costoAdquisicion
 
@@ -68,6 +78,8 @@ export const calcAnalytics = (sales, expenses) => {
 
   return {
     ventasBrutas,
+    ventasRetailBrutas,
+    ventasMayoristaBrutas,
     ivaTotalVentas,
     debitoFiscal,
     ventasNetas,
@@ -82,5 +94,6 @@ export const calcAnalytics = (sales, expenses) => {
     utilidadReal,
     creditoFiscal,
     ivaPorPagar,
+    countMayorista: activeDocs.length,
   }
 }

@@ -229,8 +229,9 @@ body {
   font-weight: 700;
   letter-spacing: .04em;
 }
-.sale-channel-badge--pos  { background: rgba(10,132,255,.15); color: var(--accent); }
-.sale-channel-badge--ecom { background: rgba(191,90,242,.15); color: var(--ecom); }
+.sale-channel-badge--pos       { background: rgba(10,132,255,.15);  color: var(--accent); }
+.sale-channel-badge--ecom      { background: rgba(191,90,242,.15); color: var(--ecom); }
+.sale-channel-badge--mayorista { background: rgba(48,209,88,.15);  color: var(--success); }
 
 .row--voided td { opacity: 0.45; }
 
