@@ -1,4 +1,5 @@
 import { calcNeto, calcIVA, formatCLP } from '../utils/calculations'
+import { DailySummary } from './DailySummary'
 
 const CHANNELS = [
   { key: 'POS',  label: 'PUNTO DE VENTA' },
@@ -19,7 +20,7 @@ export function Cart({
   cobroEnvio, setCobroEnvio,
   costoEnvio, setCostoEnvio,
   listTotal, effectiveTotal, cardCommission, mpCommission, shippingMargin,
-  cfg,
+  cfg, sales,
   onRemove, onUpdateQuantity, onCheckout,
 }) {
   const netoEfectivo = calcNeto(effectiveTotal)
@@ -47,7 +48,7 @@ export function Cart({
 
       {/* Items */}
       {items.length === 0 ? (
-        <p className="cart__empty">Sin productos. Escanee o ingrese un código.</p>
+        <DailySummary sales={sales ?? []} />
       ) : (
         <div className="cart__items">
           {items.map((item) => (

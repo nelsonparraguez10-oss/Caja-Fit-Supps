@@ -496,10 +496,67 @@ body {
 .channel-tab:hover      { background: var(--bg); color: var(--text1); }
 .channel-tab--active    { color: var(--accent); background: rgba(10,132,255,.14); }
 
-.cart__empty {
-  color: var(--text2); text-align: center;
-  padding: 48px 24px; font-size: 14px;
+/* ── Daily Summary — Bento Grid ─────────────────────────────────────────────── */
+.daily-summary {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 16px;
+  gap: 10px;
+  overflow: hidden;
 }
+
+.daily-summary__date {
+  font-size: 11px;
+  text-transform: capitalize;
+  color: var(--text3);
+  letter-spacing: .04em;
+  padding: 0 2px;
+}
+
+.daily-summary__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.daily-card {
+  background: rgba(29,29,31,.55);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px;
+  padding: 18px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.daily-card__label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text3);
+  font-weight: 500;
+}
+
+.daily-card__value {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text1);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+}
+.daily-card__value--neg { color: var(--danger); }
+
+.daily-card__badge {
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 2px;
+}
+.daily-card__badge--pos { color: var(--success); }
+.daily-card__badge--neg { color: var(--danger); }
+.daily-card__badge--neu { color: var(--text3); }
 
 /* Items list */
 .cart__items {

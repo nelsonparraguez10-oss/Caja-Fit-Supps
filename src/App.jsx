@@ -212,6 +212,7 @@ function AppContent({ onLogout }) {
                   cardCommission={cart.cardCommission}
                   mpCommission={cart.mpCommission}
                   cfg={cfg}
+                  sales={sales}
                   shippingMargin={cart.shippingMargin}
                   onRemove={cart.removeItem}
                   onUpdateQuantity={cart.updateQuantity}
