@@ -10,10 +10,11 @@ const EMPTY_FORM = {
 }
 
 export function Products({ products, onCreate, onUpdate, onRemove }) {
-  const [form, setForm]          = useState(EMPTY_FORM)
-  const [editBarcode, setEditBC] = useState(null)
-  const [search, setSearch]      = useState('')
+  const [form, setForm]           = useState(EMPTY_FORM)
+  const [editBarcode, setEditBC]  = useState(null)
+  const [search, setSearch]       = useState('')
   const [catFilter, setCatFilter] = useState('Todos')
+  const [deleteTarget, setDeleteTarget] = useState(null)
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }))
 
@@ -147,7 +148,7 @@ export function Products({ products, onCreate, onUpdate, onRemove }) {
                   <td className={lowStock ? 'text-warn' : ''}>{p.stock}{lowStock ? ' ⚠' : ''}</td>
                   <td>
                     <button onClick={() => startEdit(p)}>EDITAR</button>
-                    <button className="btn-danger" onClick={() => onRemove(p.barcode)}>ELIMINAR</button>
+                    <button className="btn-danger" onClick={() => setDeleteTarget(p)}>ELIMINAR</button>
                   </td>
                 </tr>
               )
@@ -156,6 +157,26 @@ export function Products({ products, onCreate, onUpdate, onRemove }) {
         </table>
         {filtered.length === 0 && <p className="empty-msg">Sin resultados.</p>}
       </div>
+
+      {deleteTarget && (
+        <div className="void-overlay" onClick={() => setDeleteTarget(null)}>
+          <div className="void-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="void-modal__title">Eliminar producto</h3>
+            <p className="void-modal__body">
+              ¿Estás seguro que deseas eliminar{' '}
+              <strong>{deleteTarget.name}{deleteTarget.variante ? ` — ${deleteTarget.variante}` : ''}</strong>?
+              <br />
+              Esta acción no puede deshacerse y el producto desaparecerá del inventario.
+            </p>
+            <div className="void-modal__actions">
+              <button className="void-modal__cancel" onClick={() => setDeleteTarget(null)}>CANCELAR</button>
+              <button className="void-modal__confirm" onClick={() => { onRemove(deleteTarget.barcode); setDeleteTarget(null) }}>
+                CONFIRMAR ELIMINACIÓN
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
