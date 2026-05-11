@@ -1965,3 +1965,48 @@ input[type="text"],
 input[type="number"],
 input[type="date"],
 select { border-radius: var(--r-sm); }
+
+/* ── Short-viewport: laptops y monitores pequeños ────────────────────────── */
+/* Aplica sólo en pantallas de escritorio (ancho > 768px) y altura reducida  */
+@media (max-height: 800px) and (min-width: 769px) {
+  /* Reduce padding de main para ganar espacio vertical */
+  .main { padding: 14px 20px; }
+
+  /* Subnav más compacto */
+  .terminal-tab { padding: 10px 14px; font-size: 12px; }
+
+  /* Channel tabs más delgados */
+  .channel-tab { padding: 10px 12px; }
+
+  /* Totales más compactos */
+  .cart__totals { padding: 8px 14px 6px; }
+  .total-row    { padding: 2px 0; }
+  .total-row--grand { padding-top: 5px; margin-top: 2px; font-size: 15px; }
+
+  /* Secciones del carrito (pago, logística) */
+  .cart__section  { padding: 7px 14px; }
+  .section-label  { margin-bottom: 5px; }
+
+  /* Botones de método de pago */
+  .payment-tab { padding: 7px 4px; font-size: 11px; }
+
+  /* Botón checkout: sobreescribe el estilo premium */
+  .btn-checkout { margin: 7px 14px 10px; padding: 13px 16px; font-size: 13px; box-shadow: var(--shadow-btn); }
+
+  /* Los ítems del carrito siempre muestran al menos 2 productos */
+  .cart__items { min-height: 90px; }
+}
+
+@media (max-height: 680px) and (min-width: 769px) {
+  /* En pantallas muy bajas el carrito entero hace scroll como una unidad */
+  .terminal-wrapper { overflow-y: auto; height: auto; }
+  .sales-layout     { overflow: visible; flex: none; }
+  .cart             { overflow: visible; flex: none; }
+  .cart__items      { flex: none; max-height: 160px; min-height: 72px; }
+
+  /* Padding mínimo de main */
+  .main { padding: 10px 16px; }
+
+  /* Nota de comisión más compacta */
+  .commission-note { padding: 3px 8px; font-size: 11px; }
+}
