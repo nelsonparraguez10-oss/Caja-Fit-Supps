@@ -54,7 +54,12 @@ export function Cart({
           {items.map((item) => (
             <div key={item.barcode} className="cart-item">
               <div className="cart-item__info">
-                <span className="cart-item__name">{item.name}</span>
+                <div className="cart-item__name-wrap">
+                  <span className="cart-item__name">{item.name}</span>
+                  {item.variante && (
+                    <span className="cart-item__variante">{item.variante}</span>
+                  )}
+                </div>
                 <span className="cart-item__unit">{formatCLP(item.price)} c/u</span>
               </div>
               <div className="cart-item__controls">

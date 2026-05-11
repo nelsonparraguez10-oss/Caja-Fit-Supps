@@ -18,10 +18,15 @@ const formatDateTime = (iso) => {
   }
 }
 
-const summarizeItems = (items) =>
-  items.length === 1
-    ? `${items[0].name} ×${items[0].quantity}`
-    : `${items.length} productos`
+const itemLabel = (item) =>
+  item.variante
+    ? `${item.name} — ${item.variante} ×${item.quantity}`
+    : `${item.name} ×${item.quantity}`
+
+const summarizeItems = (items) => {
+  if (items.length === 1) return itemLabel(items[0])
+  return items.map(itemLabel).join('\n')
+}
 
 export function SalesHistory({ sales, onVoid }) {
   const [voidTarget, setVoidTarget] = useState(null)
@@ -79,7 +84,19 @@ export function SalesHistory({ sales, onVoid }) {
                       </span>
                     </td>
                     <td className="text-muted">{METHOD_LABELS[sale.paymentMethod] || sale.paymentMethod || '—'}</td>
-                    <td className="text-muted">{summarizeItems(sale.items)}</td>
+                    <td className="td-items">
+                      {sale.items.length === 1 ? (
+                        <span className="text-muted">{itemLabel(sale.items[0])}</span>
+                      ) : (
+                        <div className="items-list">
+                          {sale.items.map((item) => (
+                            <span key={item.barcode} className="text-muted items-list__row">
+                              {itemLabel(item)}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </td>
                     <td>
                       <strong className={isVoided ? 'text-muted' : ''}>
                         {formatCLP(sale.effectiveTotal ?? sale.total)}

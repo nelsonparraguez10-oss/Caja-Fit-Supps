@@ -35,6 +35,7 @@ export function useCart(cfg) {
         {
           barcode:  product.barcode,
           name:     product.name,
+          variante: product.variante || '',
           price:    product.price,
           cost:     product.cost,
           quantity: 1,

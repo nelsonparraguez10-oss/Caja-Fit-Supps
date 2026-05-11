@@ -574,9 +574,11 @@ body {
   border: 1px solid var(--border-sub);
   background: var(--bg);
 }
-.cart-item__info    { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
-.cart-item__name    { font-weight: 500; font-size: 13px; color: var(--text1); }
-.cart-item__unit    { font-size: 12px; color: var(--text2); }
+.cart-item__info       { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+.cart-item__name-wrap  { display: flex; flex-direction: column; gap: 2px; }
+.cart-item__name       { font-weight: 500; font-size: 13px; color: var(--text1); }
+.cart-item__variante   { font-size: 11px; color: var(--accent); font-weight: 500; }
+.cart-item__unit       { font-size: 12px; color: var(--text2); white-space: nowrap; margin-left: 8px; }
 .cart-item__controls{ display: flex; align-items: center; gap: 8px; }
 
 .qty-btn {
@@ -1050,6 +1052,9 @@ td button.btn-danger:hover { color: var(--danger);  }
 .form-grid--wide { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
 .cat-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: .04em; background: var(--border); color: var(--text2); }
 .td-code   { font-family: monospace; font-size: 11px; color: var(--text3); }
+.td-items  { vertical-align: top; }
+.items-list { display: flex; flex-direction: column; gap: 3px; }
+.items-list__row { display: block; font-size: 13px; }
 .products-table td { vertical-align: middle; }
 .text-warn { color: var(--warning); }
 
