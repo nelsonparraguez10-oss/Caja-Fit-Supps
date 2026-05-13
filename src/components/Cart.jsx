@@ -19,7 +19,9 @@ export function Cart({
   ecomReceived, setEcomReceived,
   cobroEnvio, setCobroEnvio,
   costoEnvio, setCostoEnvio,
-  listTotal, effectiveTotal, cardCommission, mpCommission, shippingMargin,
+  discount, setDiscount,
+  listTotal, discountPct, discountAmount, discountedListTotal,
+  effectiveTotal, cardCommission, mpCommission, shippingMargin,
   cfg, sales,
   onRemove, onUpdateQuantity, onCheckout,
 }) {
@@ -76,6 +78,29 @@ export function Cart({
 
       {items.length > 0 && (
         <>
+          {/* Descuento */}
+          <div className="cart__section">
+            <p className="section-label">DESCUENTO</p>
+            <div className="discount-field">
+              <label htmlFor="discount-pct">Porcentaje de descuento</label>
+              <div className="discount-input-wrap">
+                <input
+                  id="discount-pct"
+                  type="number"
+                  value={discount}
+                  onChange={(e) => setDiscount(e.target.value)}
+                  placeholder="0"
+                  className="inline-input"
+                  min="0"
+                  max="100"
+                  step="1"
+                  tabIndex={-1}
+                />
+                <span className="discount-pct-symbol">%</span>
+              </div>
+            </div>
+          </div>
+
           {/* Totales */}
           <div className="cart__totals">
             {channel === 'ECOM' ? (
@@ -84,6 +109,12 @@ export function Cart({
                   <span>Total de lista</span>
                   <span>{formatCLP(listTotal)}</span>
                 </div>
+                {discountPct > 0 && (
+                  <div className="total-row">
+                    <span>Descuento ({discountPct}%)</span>
+                    <span className="text-warn">−{formatCLP(discountAmount)}</span>
+                  </div>
+                )}
                 <div className="total-row">
                   <span>Comisión MP estimada ({mpRate}%)</span>
                   <span className="text-warn">−{formatCLP(mpCommission)}</span>
@@ -95,7 +126,7 @@ export function Cart({
                     type="number"
                     value={ecomReceived}
                     onChange={(e) => setEcomReceived(e.target.value)}
-                    placeholder={String(listTotal - mpCommission)}
+                    placeholder={String(discountedListTotal - mpCommission)}
                     className="inline-input"
                     min="0"
                     step="1"
@@ -112,17 +143,29 @@ export function Cart({
               </>
             ) : (
               <>
+                {discountPct > 0 && (
+                  <div className="total-row">
+                    <span>Total de lista</span>
+                    <span>{formatCLP(listTotal)}</span>
+                  </div>
+                )}
+                {discountPct > 0 && (
+                  <div className="total-row">
+                    <span>Descuento ({discountPct}%)</span>
+                    <span className="text-warn">−{formatCLP(discountAmount)}</span>
+                  </div>
+                )}
                 <div className="total-row">
                   <span>Neto</span>
-                  <span>{formatCLP(calcNeto(listTotal))}</span>
+                  <span>{formatCLP(calcNeto(effectiveTotal))}</span>
                 </div>
                 <div className="total-row">
                   <span>IVA 19%</span>
-                  <span>{formatCLP(calcIVA(listTotal))}</span>
+                  <span>{formatCLP(calcIVA(effectiveTotal))}</span>
                 </div>
                 <div className="total-row total-row--grand">
                   <span>Total</span>
-                  <span>{formatCLP(listTotal)}</span>
+                  <span>{formatCLP(effectiveTotal)}</span>
                 </div>
               </>
             )}

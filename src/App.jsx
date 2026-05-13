@@ -128,6 +128,8 @@ function AppContent({ onLogout }) {
       channel:        cart.channel,
       items:          [...cart.items],
       listTotal:      cart.listTotal,
+      discount:       cart.discountPct,
+      discountAmount: cart.discountAmount,
       effectiveTotal: cart.effectiveTotal,
       paymentMethod:  cart.channel === 'ECOM' ? 'mercadopago' : cart.paymentMethod,
       cardCommission: cart.channel === 'ECOM' ? cart.mpCommission : cart.cardCommission,
@@ -207,7 +209,11 @@ function AppContent({ onLogout }) {
                   ecomReceived={cart.ecomReceived}     setEcomReceived={cart.setEcomReceived}
                   cobroEnvio={cart.cobroEnvio}         setCobroEnvio={cart.setCobroEnvio}
                   costoEnvio={cart.costoEnvio}         setCostoEnvio={cart.setCostoEnvio}
+                  discount={cart.discount}             setDiscount={cart.setDiscount}
                   listTotal={cart.listTotal}
+                  discountPct={cart.discountPct}
+                  discountAmount={cart.discountAmount}
+                  discountedListTotal={cart.discountedListTotal}
                   effectiveTotal={cart.effectiveTotal}
                   cardCommission={cart.cardCommission}
                   mpCommission={cart.mpCommission}

@@ -9,6 +9,7 @@ export function useCart(cfg) {
   const [ecomReceived, setEcomReceived]     = useState('')
   const [cobroEnvio, setCobroEnvio]         = useState('')
   const [costoEnvio, setCostoEnvio]         = useState('')
+  const [discount, setDiscount]             = useState('')
 
   const addItem = useCallback((barcode) => {
     const product = dbProducts.findByBarcode(barcode)
@@ -70,24 +71,29 @@ export function useCart(cfg) {
     setEcomReceived('')
     setCobroEnvio('')
     setCostoEnvio('')
+    setDiscount('')
   }, [])
 
   const listTotal = items.reduce((acc, i) => acc + i.subtotal, 0)
 
+  const discountPct    = Math.min(100, Math.max(0, parseFloat(discount) || 0))
+  const discountAmount = Math.round(listTotal * discountPct / 100)
+  const discountedListTotal = listTotal - discountAmount
+
   const effectiveTotal =
     channel === 'ECOM'
-      ? (parseFloat(ecomReceived) || listTotal)
-      : listTotal
+      ? (parseFloat(ecomReceived) || discountedListTotal)
+      : discountedListTotal
 
   // Comisión aplica en POS débito/crédito, y en ECOM se calcula para referencia
   const cardCommission =
     channel === 'POS' && (paymentMethod === 'debito' || paymentMethod === 'credito')
-      ? calcCommissionFromCfg(listTotal, cfg, paymentMethod)
+      ? calcCommissionFromCfg(discountedListTotal, cfg, paymentMethod)
       : 0
 
   const mpCommission =
     channel === 'ECOM'
-      ? calcCommissionFromCfg(listTotal, cfg, 'mercadopago')
+      ? calcCommissionFromCfg(discountedListTotal, cfg, 'mercadopago')
       : 0
 
   const shippingMargin = (parseFloat(cobroEnvio) || 0) - (parseFloat(costoEnvio) || 0)
@@ -99,7 +105,11 @@ export function useCart(cfg) {
     ecomReceived,  setEcomReceived,
     cobroEnvio,    setCobroEnvio,
     costoEnvio,    setCostoEnvio,
+    discount,      setDiscount,
     listTotal,
+    discountPct,
+    discountAmount,
+    discountedListTotal,
     effectiveTotal,
     cardCommission,
     mpCommission,

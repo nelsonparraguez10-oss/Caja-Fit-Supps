@@ -665,6 +665,13 @@ body {
   background: rgba(255,159,10,.12); padding: 5px 10px; border-radius: 6px;
 }
 
+/* Discount */
+.discount-field { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.discount-field label { font-size: 11px; color: var(--text2); }
+.discount-input-wrap { display: flex; align-items: center; gap: 4px; }
+.discount-input-wrap .inline-input { width: 72px; text-align: center; }
+.discount-pct-symbol { font-size: 13px; font-weight: 600; color: var(--text2); }
+
 /* Shipping */
 .shipping-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .shipping-field label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 4px; }
