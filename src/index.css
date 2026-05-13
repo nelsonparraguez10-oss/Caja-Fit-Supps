@@ -1551,10 +1551,51 @@ td button.btn-danger:hover { color: var(--danger);  }
   /* Terminal */
   .terminal-wrapper { height: auto; overflow: visible; }
   .sales-layout     { height: auto; overflow: visible; flex: none; }
-  .cart            { flex: none; overflow: visible; }
-  .cart__items     { max-height: 240px; }
-  .inline-input    { width: 120px; }
-  .shipping-fields { grid-template-columns: 1fr; }
+  .cart             { flex: none; overflow: visible; }
+
+  /* Ítems del carrito — más compactos */
+  .cart__items        { max-height: 195px; padding: 6px 10px; gap: 4px; }
+  .cart-item          { padding: 7px 9px; }
+  .cart-item__info    { margin-bottom: 3px; }
+  .cart-item__name    { font-size: 12px; }
+  .cart-item__variante{ font-size: 10px; }
+  .cart-item__unit    { font-size: 11px; }
+  .cart-item__controls{ gap: 5px; }
+  .qty-btn            { width: 22px; height: 22px; font-size: 13px; }
+  .qty-val            { font-size: 13px; min-width: 16px; }
+  .cart-item__sub     { font-size: 13px; }
+  /* ELIMINAR → × para ahorrar espacio horizontal */
+  .btn-eliminar       { font-size: 0; padding: 3px 8px; }
+  .btn-eliminar::after{ content: '×'; font-size: 15px; color: var(--text3); transition: color .15s; }
+  .btn-eliminar:hover::after { color: var(--danger); }
+
+  /* Canal tabs */
+  .channel-tab { padding: 10px 6px; font-size: 10px; letter-spacing: .03em; }
+
+  /* Totales */
+  .cart__totals     { padding: 7px 12px 5px; }
+  .total-row        { font-size: 12px; padding: 2px 0; }
+  .total-row--grand { font-size: 14px; padding-top: 5px; }
+  .inline-input     { width: 90px; font-size: 13px; padding: 6px 8px; }
+
+  /* Secciones (descuento, pago, logística) — padding reducido */
+  .cart__section { padding: 6px 12px; }
+  .section-label { margin-bottom: 3px; }
+
+  /* Métodos de pago: grilla 2×2 */
+  .payment-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .payment-tab  { padding: 8px 4px; font-size: 10px; border-radius: 6px; }
+  .commission-note { font-size: 10px; padding: 3px 8px; }
+
+  /* Descuento: input angosto */
+  .discount-input-wrap .inline-input { width: 56px; }
+
+  /* Logística: dos columnas para ahorrar espacio vertical */
+  .shipping-fields { grid-template-columns: 1fr 1fr; }
+  .shipping-field .inline-input { width: 100%; text-align: center; }
+
+  /* Checkout */
+  .btn-checkout { margin: 6px 12px 10px; padding: 13px 14px; font-size: 12px; }
 
   /* Scanner — input ocupa 100% y dropdown es full-width */
   .btn-consulta    { display: none; }          /* F2 solo es útil con teclado físico */
@@ -1610,8 +1651,8 @@ td button.btn-danger:hover { color: var(--danger);  }
 
 @media (max-width: 480px) {
   .form-grid, .form-grid--wide { grid-template-columns: 1fr; }
-  .channel-tab  { font-size: 10px; padding: 12px 6px; }
-  .payment-tab  { font-size: 11px; padding: 8px 4px; }
+  .channel-tab  { font-size: 10px; padding: 10px 4px; letter-spacing: .02em; }
+  .cart__items  { max-height: 160px; }
   .trend-row    { grid-template-columns: 24px 1fr 48px; }
   .trend-rev    { display: none; }
   .analytics__card { padding: 14px 16px; }
@@ -1990,20 +2031,34 @@ select { border-radius: var(--r-sm); }
   /* Channel tabs más delgados */
   .channel-tab { padding: 10px 12px; }
 
+  /* Ítems: fuentes y padding reducidos */
+  .cart__items     { padding: 6px 12px; gap: 4px; }
+  .cart-item       { padding: 7px 10px; }
+  .cart-item__info { margin-bottom: 3px; }
+  .cart-item__name { font-size: 12px; }
+  .cart-item__unit { font-size: 11px; }
+  .cart-item__sub  { font-size: 13px; }
+  .qty-btn         { width: 22px; height: 22px; }
+  /* ELIMINAR → × en pantallas bajas */
+  .btn-eliminar       { font-size: 0; padding: 3px 8px; }
+  .btn-eliminar::after{ content: '×'; font-size: 15px; color: var(--text3); transition: color .15s; }
+  .btn-eliminar:hover::after { color: var(--danger); }
+
   /* Totales más compactos */
-  .cart__totals { padding: 8px 14px 6px; }
-  .total-row    { padding: 2px 0; }
+  .cart__totals { padding: 6px 14px 4px; }
+  .total-row    { padding: 2px 0; font-size: 12px; }
   .total-row--grand { padding-top: 5px; margin-top: 2px; font-size: 15px; }
 
-  /* Secciones del carrito (pago, logística) */
-  .cart__section  { padding: 7px 14px; }
-  .section-label  { margin-bottom: 5px; }
+  /* Secciones del carrito (pago, descuento, logística) */
+  .cart__section  { padding: 5px 14px; }
+  .section-label  { margin-bottom: 3px; }
 
   /* Botones de método de pago */
   .payment-tab { padding: 7px 4px; font-size: 11px; }
+  .commission-note { font-size: 11px; padding: 3px 8px; }
 
   /* Botón checkout: sobreescribe el estilo premium */
-  .btn-checkout { margin: 7px 14px 10px; padding: 13px 16px; font-size: 13px; box-shadow: var(--shadow-btn); }
+  .btn-checkout { margin: 6px 14px 8px; padding: 12px 16px; font-size: 13px; box-shadow: var(--shadow-btn); }
 
   /* Los ítems del carrito siempre muestran al menos 2 productos */
   .cart__items { min-height: 90px; }
