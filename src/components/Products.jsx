@@ -10,12 +10,13 @@ const EMPTY_FORM = {
   price: '', cost: '', stock: '', category: 'General', margenPct: '',
 }
 
-// Margen % = (precio - costo) / costo × 100  →  ganancia sobre la inversión
+// Margen % = (precio_neto − costo) / precio_bruto × 100
+// precio_neto = precio con IVA / 1.19  →  utilidad real sobre lo cobrado al cliente
 const autoMargen = (price, cost) => {
   const p = parseFloat(price)
   const c = parseFloat(cost)
   if (!c || c <= 0 || !p || p <= 0) return ''
-  return String(Math.round(((p - c) / c) * 100))
+  return String(Math.round(((p / 1.19 - c) / p) * 100))
 }
 
 function exportInventario(products) {
