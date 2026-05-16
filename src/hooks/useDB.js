@@ -7,100 +7,105 @@ import {
 
 export function useProducts() {
   const [products, setProducts] = useState([])
-  const refresh = useCallback(() => setProducts(dbProducts.getAll()), [])
+  const refresh = useCallback(async () => setProducts(await dbProducts.getAll()), [])
 
   useEffect(() => {
-    dbProducts.seed()
-    refresh()
+    dbProducts.seed().then(refresh)
   }, [refresh])
 
   return {
     products,
     refresh,
-    create:  (p)           => { dbProducts.create(p);            refresh() },
-    update:  (bc, updates) => { dbProducts.update(bc, updates);  refresh() },
-    remove:  (bc)          => { dbProducts.delete(bc);           refresh() },
+    create:  async (p)           => { await dbProducts.create(p);           await refresh() },
+    update:  async (bc, updates) => { await dbProducts.update(bc, updates); await refresh() },
+    remove:  async (bc)          => { await dbProducts.delete(bc);          await refresh() },
   }
 }
 
 export function useSales() {
   const [sales, setSales] = useState([])
-  const refresh = useCallback(() => setSales(dbSales.getAll()), [])
+  const refresh = useCallback(async () => setSales(await dbSales.getAll()), [])
 
   useEffect(() => { refresh() }, [refresh])
 
   return {
     sales,
     refresh,
-    create:    (sale) => { const s = dbSales.create(sale); refresh(); return s },
-    remove:    (id)   => { dbSales.delete(id); refresh() },
-    voidSale:  (id)   => { dbSales.voidSale(id); refresh() },
+    create:   async (sale) => { const s = await dbSales.create(sale); await refresh(); return s },
+    remove:   async (id)   => { await dbSales.delete(id);             await refresh() },
+    voidSale: async (id)   => { await dbSales.voidSale(id);           await refresh() },
   }
 }
 
 export function useExpenses() {
   const [expenses, setExpenses] = useState([])
-  const refresh = useCallback(() => setExpenses(dbExpenses.getAll()), [])
+  const refresh = useCallback(async () => setExpenses(await dbExpenses.getAll()), [])
 
   useEffect(() => { refresh() }, [refresh])
 
   return {
     expenses,
     refresh,
-    create: (e)            => { dbExpenses.create(e);            refresh() },
-    update: (id, updates)  => { dbExpenses.update(id, updates);  refresh() },
-    remove: (id)           => { dbExpenses.delete(id);           refresh() },
+    create: async (e)           => { await dbExpenses.create(e);           await refresh() },
+    update: async (id, updates) => { await dbExpenses.update(id, updates); await refresh() },
+    remove: async (id)          => { await dbExpenses.delete(id);          await refresh() },
   }
 }
 
 export function useExpenseTemplates() {
   const [templates, setTemplates] = useState([])
-  const refresh = useCallback(() => setTemplates(dbTemplates.getAll()), [])
+  const refresh = useCallback(async () => setTemplates(await dbTemplates.getAll()), [])
 
   useEffect(() => { refresh() }, [refresh])
 
   return {
     templates,
     refresh,
-    create:    (t)           => { dbTemplates.create(t);           refresh() },
-    update:    (id, updates) => { dbTemplates.update(id, updates); refresh() },
-    remove:    (id)          => { dbTemplates.delete(id);          refresh() },
-    imputeNow: (id)          => { dbTemplates.imputeNow(id);       refresh() },
+    create:    async (t)           => { await dbTemplates.create(t);           await refresh() },
+    update:    async (id, updates) => { await dbTemplates.update(id, updates); await refresh() },
+    remove:    async (id)          => { await dbTemplates.delete(id);          await refresh() },
+    imputeNow: async (id)          => { await dbTemplates.imputeNow(id);       await refresh() },
   }
 }
 
 export function useClients() {
   const [clients, setClients] = useState([])
-  const refresh = useCallback(() => setClients(dbClients.getAll()), [])
+  const refresh = useCallback(async () => setClients(await dbClients.getAll()), [])
+
   useEffect(() => { refresh() }, [refresh])
+
   return {
     clients, refresh,
-    create: (d)      => { dbClients.create(d);         refresh() },
-    update: (id, d)  => { dbClients.update(id, d);     refresh() },
-    remove: (id)     => { dbClients.delete(id);         refresh() },
+    create: async (d)      => { await dbClients.create(d);       await refresh() },
+    update: async (id, d)  => { await dbClients.update(id, d);   await refresh() },
+    remove: async (id)     => { await dbClients.delete(id);      await refresh() },
   }
 }
 
 export function useSalesNotes() {
   const [notes, setNotes] = useState([])
-  const refresh = useCallback(() => setNotes(dbSalesNotes.getAll()), [])
+  const refresh = useCallback(async () => setNotes(await dbSalesNotes.getAll()), [])
+
   useEffect(() => { refresh() }, [refresh])
+
   return {
     notes, refresh,
-    create: (d)      => { const n = dbSalesNotes.create(d); refresh(); return n },
-    update: (id, d)  => { dbSalesNotes.update(id, d);       refresh() },
-    remove: (id)     => { dbSalesNotes.delete(id);           refresh() },
+    create: async (d)      => { const n = await dbSalesNotes.create(d); await refresh(); return n },
+    update: async (id, d)  => { await dbSalesNotes.update(id, d);       await refresh() },
+    remove: async (id)     => { await dbSalesNotes.delete(id);          await refresh() },
   }
 }
 
 export function useDocuments() {
   const [docs, setDocs] = useState([])
-  const refresh = useCallback(() => setDocs(dbDocuments.getAll()), [])
+  const refresh = useCallback(async () => setDocs(await dbDocuments.getAll()), [])
+
   useEffect(() => { refresh() }, [refresh])
+
   return {
     docs, refresh,
-    create:  (d)  => { const doc = dbDocuments.create(d); refresh(); return doc },
-    remove:  (id) => { dbDocuments.delete(id); refresh() },
-    voidDoc: (id) => { dbDocuments.voidDoc(id); refresh() },
+    create:  async (d)  => { const doc = await dbDocuments.create(d); await refresh(); return doc },
+    remove:  async (id) => { await dbDocuments.delete(id);            await refresh() },
+    voidDoc: async (id) => { await dbDocuments.voidDoc(id);           await refresh() },
   }
 }

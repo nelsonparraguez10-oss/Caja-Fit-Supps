@@ -1,19 +1,6 @@
 import { useState } from 'react'
 import logo from '../assets/logo-sidebar.png'
-
-// SHA-256 of "email:password:VITE_SECRET_KEY" — credentials never stored in plain text
-const AUTH_HASH = 'a6e0a559996c23b6509aabe6e3462443a9fb07a7ccfdb6ad895ecb41df306f1d'
-
-async function sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('')
-}
-
-async function verifyCredentials(email, pw) {
-  const key  = import.meta.env.VITE_SECRET_KEY ?? ''
-  const hash = await sha256(`${email.trim().toLowerCase()}:${pw}:${key}`)
-  return hash === AUTH_HASH
-}
+import { supabase } from '../lib/supabase'
 
 export function Login({ onSuccess }) {
   const [email, setEmail]     = useState('')
@@ -24,12 +11,18 @@ export function Login({ onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    const ok = await verifyCredentials(email, pw)
-    if (ok) {
-      onSuccess()
-    } else {
+    setError(false)
+
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password: pw,
+    })
+
+    if (authError) {
       setError(true)
       setLoading(false)
+    } else {
+      onSuccess()
     }
   }
 
@@ -72,7 +65,7 @@ export function Login({ onSuccess }) {
           </button>
         </form>
 
-        <p className="login-footer">Fit Supps SpA. · v3.1.0</p>
+        <p className="login-footer">Fit Supps SpA. · v3.2.0</p>
       </div>
     </div>
   )

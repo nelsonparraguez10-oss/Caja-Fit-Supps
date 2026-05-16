@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import logo          from './assets/logo-sidebar.png'
 import logoCollapsed from './assets/logo-sidebar-collapsed.png'
+import { supabase, setStoreId } from './lib/supabase'
+import { runMigrationIfNeeded } from './lib/migration'
 import { expenseTemplates as dbTemplates } from './data/db'
 import { ScannerInput } from './components/ScannerInput'
 import { Cart }         from './components/Cart'
@@ -62,21 +64,43 @@ const ICON_CHEVRON = (
 )
 
 export default function App() {
-  const [authed, setAuthed] = useState(() => localStorage.getItem('pos_auth') === '1')
+  const [session, setSession] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  if (!authed) {
+  useEffect(() => {
+    // Restaurar sesión existente (token persistido por Supabase en localStorage)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setStoreId(session?.user?.id ?? null)
+      setSession(session)
+      setLoading(false)
+    })
+
+    // Escuchar cambios de sesión (login / logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setStoreId(session?.user?.id ?? null)
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  if (loading) {
     return (
-      <Login onSuccess={() => {
-        localStorage.setItem('pos_auth', '1')
-        setAuthed(true)
-      }} />
+      <div className="login-screen">
+        <div className="login-card">
+          <p style={{ textAlign: 'center', color: '#888' }}>Cargando…</p>
+        </div>
+      </div>
     )
   }
 
+  if (!session) {
+    return <Login onSuccess={() => { /* onAuthStateChange actualiza session automáticamente */ }} />
+  }
+
   return (
-    <AppContent onLogout={() => {
-      localStorage.removeItem('pos_auth')
-      setAuthed(false)
+    <AppContent onLogout={async () => {
+      await supabase.auth.signOut()
     }} />
   )
 }
@@ -111,10 +135,14 @@ function AppContent({ onLogout }) {
   const { cfg, save: saveSettings } = useSettings()
   const cart = useCart(cfg)
 
+  // Migración y auto-imputación al montar (una sola vez, la sesión ya está activa)
   useEffect(() => {
-    dbTemplates.autoImputeMonth()
-    refreshExpenses()
-    refreshTemplates()
+    runMigrationIfNeeded()
+
+    dbTemplates.autoImputeMonth().then(() => {
+      refreshExpenses()
+      refreshTemplates()
+    })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const showToast = (text, type = 'success') => {
@@ -122,9 +150,9 @@ function AppContent({ onLogout }) {
     setTimeout(() => setToast(null), 3000)
   }
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cart.items.length === 0) return
-    createSale({
+    await createSale({
       channel:        cart.channel,
       items:          [...cart.items],
       listTotal:      cart.listTotal,
@@ -143,15 +171,15 @@ function AppContent({ onLogout }) {
     showToast('Venta registrada correctamente')
   }
 
-  const handleVoidSale = (id) => {
-    voidSale(id)
-    refreshProducts()
+  const handleVoidSale = async (id) => {
+    await voidSale(id)
+    await refreshProducts()
     showToast('Venta anulada — stock devuelto al inventario', 'success')
   }
 
-  const handleImputeTemplate = (id) => {
-    _imputeNow(id)
-    refreshExpenses()
+  const handleImputeTemplate = async (id) => {
+    await _imputeNow(id)
+    await refreshExpenses()
   }
 
   return (
@@ -177,7 +205,7 @@ function AppContent({ onLogout }) {
           <span className="sidebar__logout-icon">{ICON_LOGOUT}</span>
           <span className="sidebar__logout-label">Cerrar sesión</span>
         </button>
-        <p className="sidebar__version">v3.1.0</p>
+        <p className="sidebar__version">v3.2.0</p>
       </aside>
 
       <main className="main">
