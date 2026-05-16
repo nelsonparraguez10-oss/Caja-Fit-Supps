@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import * as XLSX from 'xlsx'
 import { formatCLP } from '../utils/calculations'
 
 const CATEGORIES = ['Snack','Bebestibles','Gel','Proteinas','Creatina','Pre entreno','Aminoácido',
@@ -9,6 +10,41 @@ const EMPTY_FORM = {
   price: '', cost: '', stock: '', category: 'General', margenPct: '',
 }
 
+// Margen % = (precio - costo) / costo × 100  →  ganancia sobre la inversión
+const autoMargen = (price, cost) => {
+  const p = parseFloat(price)
+  const c = parseFloat(cost)
+  if (!c || c <= 0 || !p || p <= 0) return ''
+  return String(Math.round(((p - c) / c) * 100))
+}
+
+function exportInventario(products) {
+  const rows = products.map((p) => ({
+    'Código':            p.barcode,
+    'Nombre':            p.name,
+    'Variante/Sabor':    p.variante  || '',
+    'Marca':             p.marca     || '',
+    'Proveedor':         p.proveedor || '',
+    'Categoría':         p.category  || '',
+    'Precio (c/IVA)':    p.price,
+    'Precio Neto':       Math.round(p.price / 1.19),
+    'Costo Neto':        p.cost,
+    'Margen %':          p.margenPct ? `${p.margenPct}%` : '',
+    'Stock':             p.stock,
+    'Valor Inventario':  p.stock * p.cost,
+  }))
+
+  const ws = XLSX.utils.json_to_sheet(rows)
+  ws['!cols'] = [
+    { wch: 16 }, { wch: 32 }, { wch: 16 }, { wch: 16 },
+    { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 14 },
+    { wch: 12 }, { wch: 10 }, { wch: 8  }, { wch: 16 },
+  ]
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Inventario')
+  XLSX.writeFile(wb, `inventario_${new Date().toISOString().slice(0, 10)}.xlsx`)
+}
+
 export function Products({ products, onCreate, onUpdate, onRemove }) {
   const [form, setForm]           = useState(EMPTY_FORM)
   const [editBarcode, setEditBC]  = useState(null)
@@ -16,15 +52,24 @@ export function Products({ products, onCreate, onUpdate, onRemove }) {
   const [catFilter, setCatFilter] = useState('Todos')
   const [deleteTarget, setDeleteTarget] = useState(null)
 
-  const set = (key, val) => setForm((f) => ({ ...f, [key]: val }))
+  const set = (key, val) => setForm((f) => {
+    const next = { ...f, [key]: val }
+    // Recalcular margen automáticamente al cambiar precio o costo
+    if (key === 'price' || key === 'cost') {
+      const price = key === 'price' ? val : f.price
+      const cost  = key === 'cost'  ? val : f.cost
+      next.margenPct = autoMargen(price, cost)
+    }
+    return next
+  })
 
   const handleSubmit = (e) => {
     e.preventDefault()
     const data = {
       ...form,
-      price:    parseFloat(form.price)    || 0,
-      cost:     parseFloat(form.cost)     || 0,
-      stock:    parseInt(form.stock)      || 0,
+      price:     parseFloat(form.price)   || 0,
+      cost:      parseFloat(form.cost)    || 0,
+      stock:     parseInt(form.stock)     || 0,
       margenPct: parseInt(form.margenPct) || 0,
     }
     if (editBarcode) { onUpdate(editBarcode, data); setEditBC(null) }
@@ -86,10 +131,24 @@ export function Products({ products, onCreate, onUpdate, onRemove }) {
           <select value={form.category} onChange={(e) => set('category', e.target.value)}>
             {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
-          <input type="number" value={form.price}     onChange={(e) => set('price', e.target.value)}     placeholder="Precio (con IVA)" min="0" step="1" required />
-          <input type="number" value={form.cost}      onChange={(e) => set('cost', e.target.value)}      placeholder="Costo neto (sin IVA)" min="0" step="1" required />
-          <input type="number" value={form.stock}     onChange={(e) => set('stock', e.target.value)}     placeholder="Stock" min="0" required />
-          <input type="number" value={form.margenPct} onChange={(e) => set('margenPct', e.target.value)} placeholder="Margen %" min="0" max="100" />
+          <input type="number" value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="Precio venta (con IVA)" min="0" step="1" required />
+          <input type="number" value={form.cost}  onChange={(e) => set('cost',  e.target.value)} placeholder="Costo neto (sin IVA)"   min="0" step="1" required />
+          <input type="number" value={form.stock} onChange={(e) => set('stock', e.target.value)} placeholder="Stock" min="0" required />
+          <div className="margen-field">
+            <input
+              type="number"
+              value={form.margenPct}
+              onChange={(e) => set('margenPct', e.target.value)}
+              placeholder="Margen % (auto)"
+              min="0"
+              className="margen-input"
+            />
+            {form.margenPct !== '' && (
+              <span className={`margen-badge ${parseInt(form.margenPct) >= 40 ? 'margen-badge--ok' : parseInt(form.margenPct) < 20 ? 'margen-badge--low' : ''}`}>
+                {form.margenPct}% sobre costo
+              </span>
+            )}
+          </div>
         </div>
         <div className="form-actions">
           <button type="submit">{editBarcode ? 'Guardar cambios' : 'Agregar producto'}</button>
@@ -97,7 +156,7 @@ export function Products({ products, onCreate, onUpdate, onRemove }) {
         </div>
       </form>
 
-      {/* Filtros */}
+      {/* Filtros + exportar */}
       <div className="products__filters">
         <input
           type="text"
@@ -109,6 +168,9 @@ export function Products({ products, onCreate, onUpdate, onRemove }) {
         <select value={catFilter} onChange={(e) => setCatFilter(e.target.value)} className="cat-filter">
           {categories.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
+        <button type="button" className="btn-export" onClick={() => exportInventario(filtered)} title="Descargar inventario en Excel">
+          ↓ Exportar Excel
+        </button>
       </div>
       <p className="products__count">{filtered.length} producto(s) — {stockTotal} unidades en stock</p>
 
@@ -116,17 +178,9 @@ export function Products({ products, onCreate, onUpdate, onRemove }) {
         <table className="products-table">
           <thead>
             <tr>
-              <th>Código</th>
-              <th>Nombre</th>
-              <th>Variante</th>
-              <th>Marca</th>
-              <th>Proveedor</th>
-              <th>Categ.</th>
-              <th>Precio</th>
-              <th>Costo</th>
-              <th>Margen</th>
-              <th>Stock</th>
-              <th>Acciones</th>
+              <th>Código</th><th>Nombre</th><th>Variante</th><th>Marca</th>
+              <th>Proveedor</th><th>Categ.</th><th>Precio</th><th>Costo</th>
+              <th>Margen</th><th>Stock</th><th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -165,8 +219,7 @@ export function Products({ products, onCreate, onUpdate, onRemove }) {
             <p className="void-modal__body">
               ¿Estás seguro que deseas eliminar{' '}
               <strong>{deleteTarget.name}{deleteTarget.variante ? ` — ${deleteTarget.variante}` : ''}</strong>?
-              <br />
-              Esta acción no puede deshacerse y el producto desaparecerá del inventario.
+              <br />Esta acción no puede deshacerse y el producto desaparecerá del inventario.
             </p>
             <div className="void-modal__actions">
               <button className="void-modal__cancel" onClick={() => setDeleteTarget(null)}>CANCELAR</button>

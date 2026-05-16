@@ -170,6 +170,18 @@ body {
   background: var(--bg);
 }
 
+/* Todos los módulos que no son el terminal pueden hacer scroll verticalmente */
+.analytics,
+.products,
+.cfg-module,
+.expenses,
+.clients,
+.documents {
+  overflow-y: auto;
+  height: 100%;
+  padding-bottom: 32px;
+}
+
 /* ── Terminal wrapper + subnav ───────────────────────────────────────────────── */
 .terminal-wrapper {
   display: flex;
@@ -1064,6 +1076,28 @@ td button.btn-danger:hover { color: var(--danger);  }
 .items-list__row { display: block; font-size: 13px; }
 .products-table td { vertical-align: middle; }
 .text-warn { color: var(--warning); }
+
+/* Export button (shared: products & analytics) */
+.btn-export {
+  padding: 8px 14px; border-radius: var(--r-sm); font-size: 12px; font-weight: 600;
+  background: var(--surface); border: 1px solid var(--border); color: var(--text2);
+  cursor: pointer; white-space: nowrap; transition: all .15s;
+}
+.btn-export:hover { background: var(--border); color: var(--text1); }
+
+/* Margen field (inventory form) */
+.margen-field { position: relative; display: flex; align-items: center; gap: 8px; }
+.margen-input { flex: 1; }
+.margen-badge {
+  display: inline-flex; align-items: center; padding: 3px 9px;
+  border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .02em;
+  background: var(--border); color: var(--text2); white-space: nowrap;
+}
+.margen-badge--ok  { background: rgba(48,209,88,.18); color: var(--success); }
+.margen-badge--low { background: rgba(255,69,58,.18);  color: var(--danger);  }
+
+/* Analytics header: period tabs + export button side by side */
+.analytics__header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
 /* ── Module header ───────────────────────────────────────────────────────────── */
 .module-header {
