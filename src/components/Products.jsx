@@ -134,21 +134,6 @@ export function Products({ products, onCreate, onUpdate, onRemove }) {
           <input type="number" value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="Precio venta (con IVA)" min="0" step="1" required />
           <input type="number" value={form.cost}  onChange={(e) => set('cost',  e.target.value)} placeholder="Costo neto (sin IVA)"   min="0" step="1" required />
           <input type="number" value={form.stock} onChange={(e) => set('stock', e.target.value)} placeholder="Stock" min="0" required />
-          <div className="margen-field">
-            <input
-              type="number"
-              value={form.margenPct}
-              onChange={(e) => set('margenPct', e.target.value)}
-              placeholder="Margen % (auto)"
-              min="0"
-              className="margen-input"
-            />
-            {form.margenPct !== '' && (
-              <span className={`margen-badge ${parseInt(form.margenPct) >= 40 ? 'margen-badge--ok' : parseInt(form.margenPct) < 20 ? 'margen-badge--low' : ''}`}>
-                {form.margenPct}% sobre costo
-              </span>
-            )}
-          </div>
         </div>
         <div className="form-actions">
           <button type="submit">{editBarcode ? 'Guardar cambios' : 'Agregar producto'}</button>
