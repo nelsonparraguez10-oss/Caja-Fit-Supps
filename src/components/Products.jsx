@@ -166,12 +166,13 @@ export function Products({ products, onCreate, onUpdate, onRemove }) {
             <tr>
               <th>Código</th><th>Nombre</th><th>Variante</th><th>Marca</th>
               <th>Proveedor</th><th>Categ.</th><th>Precio</th><th>Costo</th>
-              <th>Margen</th><th>Stock</th><th>Acciones</th>
+              <th>Margen Util</th><th>Stock</th><th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((p) => {
-              const lowStock = p.stock <= 5
+              const lowStock  = p.stock <= 5
+              const margenVal = parseInt(autoMargen(p.price, p.cost)) || 0
               return (
                 <tr key={p.barcode} className={lowStock ? 'row--low-stock' : ''}>
                   <td className="td-code">{p.barcode}</td>
@@ -182,8 +183,8 @@ export function Products({ products, onCreate, onUpdate, onRemove }) {
                   <td><span className="cat-badge">{p.category}</span></td>
                   <td>{formatCLP(p.price)}</td>
                   <td>{formatCLP(p.cost)}</td>
-                  <td className={p.margenPct >= 40 ? 'text-success' : p.margenPct < 25 ? 'text-warn' : ''}>
-                    {p.margenPct ? `${p.margenPct}%` : '—'}
+                  <td className={margenVal >= 20 ? 'text-success' : margenVal < 10 ? 'text-warn' : ''}>
+                    {margenVal ? `${margenVal}%` : '—'}
                   </td>
                   <td className={lowStock ? 'text-warn' : ''}>{p.stock}{lowStock ? ' ⚠' : ''}</td>
                   <td>
