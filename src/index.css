@@ -534,8 +534,8 @@ body {
 }
 
 .daily-card {
-  background: var(--surface);
-  border: 1px solid rgba(255,255,255,.10);
+  background: #2C2C2E;
+  border: 1px solid rgba(255,255,255,.08);
   border-radius: 14px;
   padding: 18px 16px 14px;
   display: flex;
