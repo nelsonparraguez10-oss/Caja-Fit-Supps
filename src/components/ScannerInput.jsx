@@ -1,11 +1,10 @@
 import { useRef, useEffect, useState, useCallback, useMemo } from 'react'
-import { products as dbProducts } from '../data/db'
 import { calcNeto, calcIVA, formatCLP } from '../utils/calculations'
 
 // Keystroke interval below this = scanner gun (ms between keystrokes)
 const SCANNER_SPEED_MS = 40
 
-export function ScannerInput({ onScan, queryMode, onToggleQueryMode }) {
+export function ScannerInput({ onScan, queryMode, onToggleQueryMode, products }) {
   const inputRef        = useRef(null)
   const lastKeyTimeRef  = useRef(0)
   const scannerModeRef  = useRef(false) // true while receiving fast bursts
@@ -21,7 +20,7 @@ export function ScannerInput({ onScan, queryMode, onToggleQueryMode }) {
   queryModeRef.current = queryMode
 
   /* ── product lookup ── */
-  const allProducts = useMemo(() => dbProducts.getAll(), []) // stable ref, products rarely change mid-session
+  const allProducts = useMemo(() => products ?? [], [products])
 
   const exactMatch = useMemo(() => {
     const v = value.trim()
@@ -33,8 +32,8 @@ export function ScannerInput({ onScan, queryMode, onToggleQueryMode }) {
     const v = value.trim().toLowerCase()
     if (!v || exactMatch) return []
     return allProducts.filter((p) =>
-      p.barcode.toLowerCase().includes(v) ||
-      p.name.toLowerCase().includes(v) ||
+      (p.barcode ?? '').toLowerCase().includes(v) ||
+      (p.name ?? '').toLowerCase().includes(v) ||
       (p.marca || '').toLowerCase().includes(v)
     ).slice(0, 8)
   }, [value, exactMatch, allProducts])

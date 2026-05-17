@@ -13,7 +13,7 @@ export function DailySummary({ sales }) {
     const yesterdaySales = active.filter((s) => dateStr(new Date(s.date)) === dateStr(yest))
 
     const gross     = (arr) => arr.reduce((a, s) => a + (s.effectiveTotal ?? s.total ?? 0), 0)
-    const costOf    = (arr) => arr.reduce((a, s) => a + s.items.reduce((b, i) => b + (i.cost || 0) * i.quantity, 0), 0)
+    const costOf    = (arr) => arr.reduce((a, s) => a + (s.items ?? []).reduce((b, i) => b + (i.cost || 0) * i.quantity, 0), 0)
 
     const todayGross    = gross(todaySales)
     const yesterdayGross = gross(yesterdaySales)

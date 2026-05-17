@@ -64,10 +64,10 @@ export const calcAnalytics = (sales, expenses, docs = []) => {
   const gastosTotal = gastosBase + comisionesTargeta
 
   const costoRetail = activeSales.reduce(
-    (acc, s) => acc + s.items.reduce((a, i) => a + (i.cost || 0) * i.quantity, 0), 0,
+    (acc, s) => acc + (s.items ?? []).reduce((a, i) => a + (i.cost || 0) * i.quantity, 0), 0,
   )
   const costoMayorista = activeDocs.reduce(
-    (acc, d) => acc + d.items.reduce((a, i) => a + (i.cost || 0) * (i.cantidad || i.quantity || 1), 0), 0,
+    (acc, d) => acc + (d.items ?? []).reduce((a, i) => a + (i.cost || 0) * (i.cantidad || i.quantity || 1), 0), 0,
   )
   const costoAdquisicion = costoRetail + costoMayorista
 

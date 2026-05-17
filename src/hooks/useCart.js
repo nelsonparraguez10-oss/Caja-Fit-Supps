@@ -1,8 +1,7 @@
 import { useState, useCallback } from 'react'
 import { calcCommissionFromCfg } from '../utils/calculations'
-import { products as dbProducts } from '../data/db'
 
-export function useCart(cfg) {
+export function useCart(cfg, products) {
   const [items, setItems]                   = useState([])
   const [channel, setChannel]               = useState('POS')
   const [paymentMethod, setPaymentMethod]   = useState('cash')
@@ -12,7 +11,7 @@ export function useCart(cfg) {
   const [discount, setDiscount]             = useState('')
 
   const addItem = useCallback((barcode) => {
-    const product = dbProducts.findByBarcode(barcode)
+    const product = (products ?? []).find((p) => p.barcode === barcode)
     if (!product) return { error: 'Producto no encontrado' }
     if (product.stock <= 0) return { error: 'Sin stock disponible' }
 
@@ -46,7 +45,7 @@ export function useCart(cfg) {
     })
 
     return result
-  }, [])
+  }, [products])
 
   const removeItem = useCallback((barcode) => {
     setItems((prev) => prev.filter((i) => i.barcode !== barcode))

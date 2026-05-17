@@ -133,7 +133,7 @@ function AppContent({ onLogout }) {
   const { docs, create: createDoc, remove: removeDoc, voidDoc } = useDocuments()
 
   const { cfg, save: saveSettings } = useSettings()
-  const cart = useCart(cfg)
+  const cart = useCart(cfg, products)
 
   // Migración y auto-imputación al montar (una sola vez, la sesión ya está activa)
   useEffect(() => {
@@ -168,6 +168,7 @@ function AppContent({ onLogout }) {
       },
     })
     cart.clearCart()
+    await refreshProducts()
     showToast('Venta registrada correctamente')
   }
 
@@ -229,6 +230,7 @@ function AppContent({ onLogout }) {
                   onScan={cart.addItem}
                   queryMode={queryMode}
                   onToggleQueryMode={() => setQueryMode((m) => !m)}
+                  products={products}
                 />
                 <Cart
                   items={cart.items}
