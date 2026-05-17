@@ -534,8 +534,8 @@ body {
 }
 
 .daily-card {
-  background: #2C2C2E;
-  border: 1px solid rgba(255,255,255,.08);
+  background: #000000;
+  border: 1px solid rgba(255,255,255,.12);
   border-radius: 14px;
   padding: 18px 16px 14px;
   display: flex;
@@ -547,14 +547,14 @@ body {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: .1em;
-  color: var(--text3);
+  color: rgba(235,235,245,0.5);
   font-weight: 500;
 }
 
 .daily-card__value {
   font-size: 22px;
   font-weight: 600;
-  color: var(--text1);
+  color: #FFFFFF;
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
   letter-spacing: -.02em;
@@ -568,7 +568,7 @@ body {
 }
 .daily-card__badge--pos { color: var(--success); }
 .daily-card__badge--neg { color: var(--danger); }
-.daily-card__badge--neu { color: var(--text3); }
+.daily-card__badge--neu { color: rgba(235,235,245,0.4); }
 
 /* Items list */
 .cart__items {
