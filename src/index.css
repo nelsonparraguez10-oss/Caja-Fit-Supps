@@ -1760,6 +1760,31 @@ td button.btn-danger:hover { color: var(--danger);  }
 
 .cfg-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
+.cfg-card--sync { margin-top: 8px; }
+
+.btn-sync {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: var(--r-sm);
+  padding: 10px 20px; font-size: 12px; font-weight: 700;
+  letter-spacing: .06em; cursor: pointer;
+  transition: opacity .15s;
+}
+.btn-sync:hover           { opacity: .85; }
+.btn-sync--loading        { opacity: .6; cursor: not-allowed; }
+.btn-sync:disabled        { opacity: .6; cursor: not-allowed; }
+
+.sync-log {
+  list-style: none; margin-top: 12px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.sync-log__item {
+  font-size: 12px; font-weight: 500;
+  padding: 6px 10px; border-radius: 6px;
+}
+.sync-log__item--ok  { background: rgba(48,209,88,.12);  color: var(--success); }
+.sync-log__item--err { background: rgba(255,69,58,.12);  color: var(--danger);  }
+
 /* ── Orden de Compra — formulario de emisión ─────────────────────────────── */
 .oc-optional { font-size: 10px; font-weight: 400; color: var(--text3); text-transform: none; letter-spacing: 0; }
 
