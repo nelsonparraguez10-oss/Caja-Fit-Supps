@@ -807,10 +807,23 @@ td button {
   background: none; border: none; color: var(--text2);
   padding: 3px 8px; border-radius: 4px; cursor: pointer;
   font-size: 11px; font-weight: 600; letter-spacing: .04em;
-  margin-right: 4px; transition: all .15s;
+  transition: all .15s;
 }
 td button:hover           { color: var(--accent); }
 td button.btn-danger:hover { color: var(--danger);  }
+
+.action-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.confirm-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--warning);
+  letter-spacing: .03em;
+  white-space: nowrap;
+}
 
 /* ── Products / Expenses card wrappers ───────────────────────────────────────── */
 .products .product-form ~ .search-input,

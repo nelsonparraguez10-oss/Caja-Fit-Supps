@@ -4,10 +4,11 @@ import { formatRUT, validateRUT } from '../utils/rut'
 const EMPTY = { razonSocial: '', rut: '', giro: '', direccion: '', comuna: '', contacto: '', telefono: '', mail: '' }
 
 export function Clients({ clients, onCreate, onUpdate, onRemove }) {
-  const [form, setForm]       = useState(EMPTY)
-  const [editId, setEditId]   = useState(null)
-  const [search, setSearch]   = useState('')
+  const [form, setForm]         = useState(EMPTY)
+  const [editId, setEditId]     = useState(null)
+  const [search, setSearch]     = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [confirmId, setConfirmId] = useState(null)
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
 
@@ -110,8 +111,20 @@ export function Clients({ clients, onCreate, onUpdate, onRemove }) {
                   <td>{c.telefono || '—'}</td>
                   <td>{c.mail || '—'}</td>
                   <td>
-                    <button type="button" onClick={() => startEdit(c)}>EDITAR</button>
-                    <button type="button" className="btn-danger" onClick={() => onRemove(c.id)}>ELIMINAR</button>
+                    <div className="action-btns">
+                      {confirmId === c.id ? (
+                        <>
+                          <span className="confirm-label">¿Eliminar?</span>
+                          <button type="button" className="btn-danger" onClick={() => { onRemove(c.id); setConfirmId(null) }}>SÍ</button>
+                          <button type="button" onClick={() => setConfirmId(null)}>NO</button>
+                        </>
+                      ) : (
+                        <>
+                          <button type="button" onClick={() => startEdit(c)}>EDITAR</button>
+                          <button type="button" className="btn-danger" onClick={() => setConfirmId(c.id)}>ELIMINAR</button>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
