@@ -119,6 +119,7 @@ export function Products({ products, onCreate, onUpdate, onRemove }) {
 
   return (
     <div className="products">
+      <div className="products__sticky-header">
       <h2>Inventario</h2>
 
       <form onSubmit={handleSubmit} className="product-form">
@@ -158,6 +159,7 @@ export function Products({ products, onCreate, onUpdate, onRemove }) {
           ↓ Exportar Excel
         </button>
       </div>
+      </div>{/* end sticky-header */}
       <p className="products__count">{filtered.length} producto(s) — {stockTotal} unidades en stock</p>
 
       <div className="table-wrap">
