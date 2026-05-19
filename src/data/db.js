@@ -250,6 +250,7 @@ export const sales = {
     const { data } = await supabase.from('sales').select('*')
       .eq('store_id', sid()).order('date', { ascending: false })
     return (data ?? []).map(fromDbSale)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
   },
 
   create: async (sale) => {

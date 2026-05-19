@@ -31,7 +31,7 @@ const summarizeItems = (items) => {
 export function SalesHistory({ sales, onVoid }) {
   const [voidTarget, setVoidTarget] = useState(null)
 
-  const sorted  = [...sales].reverse()
+  const sorted  = [...sales].sort((a, b) => new Date(b.date) - new Date(a.date))
   const active  = sales.filter((s) => s.status !== 'VOIDED').length
   const voided  = sales.filter((s) => s.status === 'VOIDED').length
 
