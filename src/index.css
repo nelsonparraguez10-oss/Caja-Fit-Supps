@@ -1032,6 +1032,16 @@ td button.btn-danger:hover { color: var(--danger);  }
 .imputation-status.ok    { color: var(--success); }
 .imputation-status.pending { color: var(--warning); }
 
+.impute-date-row {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.impute-date-row input[type="date"] {
+  background: var(--bg); border: 1px solid var(--accent);
+  border-radius: var(--r-sm); color: var(--text1);
+  padding: 5px 8px; font-size: 12px; font-family: inherit;
+  outline: none;
+}
+
 .tpl-card__right button {
   background: none; border: 1px solid var(--border); color: var(--text2);
   padding: 5px 12px; border-radius: 4px; cursor: pointer;

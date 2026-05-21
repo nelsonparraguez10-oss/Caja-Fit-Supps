@@ -101,9 +101,10 @@ export function Expenses({
   onCreate, onUpdate, onRemove,
   onCreateTemplate, onUpdateTemplate, onRemoveTemplate, onImputeTemplate,
 }) {
-  const [tab, setTab]         = useState('fixed')
+  const [tab, setTab]             = useState('fixed')
   const [editVarId, setEditVarId] = useState(null)
   const [editTplId, setEditTplId] = useState(null)
+  const [imputeTarget, setImputeTarget] = useState(null) // { id, date }
 
   const now          = new Date()
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
@@ -183,8 +184,21 @@ export function Expenses({
                       <span className={`imputation-status${imputado ? ' ok' : ' pending'}`}>
                         {imputado ? `Imputado ${monthLabel(t.lastImputedMonth)}` : 'Pendiente este mes'}
                       </span>
-                      {!imputado && (
-                        <button onClick={() => { onImputeTemplate(t.id) }}>IMPUTAR</button>
+                      {!imputado && imputeTarget?.id !== t.id && (
+                        <button onClick={() => setImputeTarget({ id: t.id, date: today() })}>IMPUTAR</button>
+                      )}
+                      {!imputado && imputeTarget?.id === t.id && (
+                        <div className="impute-date-row">
+                          <input
+                            type="date"
+                            value={imputeTarget.date}
+                            onChange={(e) => setImputeTarget((p) => ({ ...p, date: e.target.value }))}
+                          />
+                          <button onClick={() => { onImputeTemplate(imputeTarget.id, imputeTarget.date); setImputeTarget(null) }}>
+                            CONFIRMAR
+                          </button>
+                          <button onClick={() => setImputeTarget(null)}>CANCELAR</button>
+                        </div>
                       )}
                       <button onClick={() => setEditTplId(t.id)}>EDITAR</button>
                       <button className="btn-danger" onClick={() => onRemoveTemplate(t.id)}>ELIMINAR</button>

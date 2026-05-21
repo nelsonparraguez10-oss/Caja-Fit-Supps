@@ -194,8 +194,8 @@ function AppContent({ onLogout }) {
     showToast('Venta anulada — stock devuelto al inventario', 'success')
   }
 
-  const handleImputeTemplate = async (id) => {
-    await _imputeNow(id)
+  const handleImputeTemplate = async (id, date) => {
+    await _imputeNow(id, date)
     await refreshExpenses()
   }
 
