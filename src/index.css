@@ -1703,6 +1703,73 @@ td button.btn-danger:hover { color: var(--danger);  }
 
   /* Toast: por encima de la barra */
   .toast { bottom: 72px; right: 12px; left: 12px; text-align: center; }
+
+  /* ── Products table → tarjetas ── */
+  .products-table thead { display: none; }
+  .products-table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 3px;
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .products-table tbody td { display: none; }
+  .products-table tbody td:nth-child(2)  {
+    display: block; width: 100%; font-weight: 600; font-size: 14px; line-height: 1.3;
+  }
+  .products-table tbody td:nth-child(3)  {
+    display: block; width: 100%; font-size: 12px; color: var(--text3); margin-bottom: 2px;
+  }
+  .products-table tbody td:nth-child(6)  { display: block; flex-shrink: 0; }
+  .products-table tbody td:nth-child(7)  {
+    display: block; flex: 1; font-weight: 700; color: var(--accent); font-size: 15px;
+  }
+  .products-table tbody td:nth-child(9)  { display: block; font-size: 12px; }
+  .products-table tbody td:nth-child(10) { display: block; font-size: 13px; font-weight: 600; }
+  .products-table tbody td:nth-child(11) {
+    display: flex; gap: 6px; width: 100%; margin-top: 4px;
+  }
+  .products-table tbody td:nth-child(11) button { flex: 1; padding: 9px 6px; font-size: 11px; }
+  .products .table-wrap { overflow-x: visible; }
+
+  /* Filtro categoría: ancho automático en móvil */
+  .cat-filter { width: auto; flex: 1; min-width: 0; }
+
+  /* ── Sales history → tarjetas ── */
+  .sales-history table thead { display: none; }
+  .sales-history table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 4px;
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sales-history table tbody td { display: none; }
+  .sales-history table tbody td:nth-child(1) {
+    display: block; order: 1; flex: 1; min-width: 0;
+  }
+  .sales-history table tbody td:nth-child(6) {
+    display: block; order: 2; font-weight: 700; font-size: 16px;
+  }
+  .sales-history table tbody td:nth-child(3) { display: block; order: 3; }
+  .sales-history table tbody td:nth-child(4) {
+    display: block; order: 4; font-size: 12px; color: var(--text3); flex: 1;
+  }
+  .sales-history table tbody td:nth-child(7) {
+    display: flex; align-items: center; order: 5;
+  }
+  .sales-history table tbody td:nth-child(5) {
+    display: block; order: 6; width: 100%; font-size: 12px; color: var(--text3);
+  }
+  .sales-history .table-wrap { overflow-x: visible; }
+  .btn-void { padding: 7px 14px; min-height: 36px; }
+
+  /* ── Gastos: scroll horizontal en tablas ── */
+  .exp-section { overflow-x: auto; }
 }
 
 @media (max-width: 480px) {
