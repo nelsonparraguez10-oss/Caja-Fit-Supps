@@ -63,6 +63,21 @@ const ICON_CHEVRON = (
   </svg>
 )
 
+const ICON_HISTORIAL = (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <polyline points="12 6 12 12 16 14"/>
+  </svg>
+)
+
+const ICON_MENU = (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="3" y1="6" x2="21" y2="6"/>
+    <line x1="3" y1="12" x2="21" y2="12"/>
+    <line x1="3" y1="18" x2="21" y2="18"/>
+  </svg>
+)
+
 export default function App() {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -109,6 +124,7 @@ function AppContent({ onLogout }) {
   const [tab, setTab]               = useState('terminal')
   const [salesSubTab, setSalesSubTab] = useState('nueva')
   const [collapsed, setCollapsed]   = useState(() => localStorage.getItem('sidebar_collapsed') === '1')
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [queryMode, setQueryMode]   = useState(false)
   const [toast, setToast]           = useState(null)
 
@@ -185,14 +201,14 @@ function AppContent({ onLogout }) {
 
   return (
     <div className="app">
-      <aside className={`sidebar${collapsed ? ' sidebar--collapsed' : ''}`}>
+      <aside className={`sidebar${collapsed ? ' sidebar--collapsed' : ''}${mobileDrawerOpen ? ' sidebar--mobile-open' : ''}`}>
         <div className="sidebar__logo">
           <img src={logo}          alt="FIT SUPPS" className="logo-img logo-img--full" />
           <img src={logoCollapsed} alt="FIT SUPPS" className="logo-img logo-img--icon" />
         </div>
         <nav className="sidebar__nav">
           {NAV.map(({ id, label, icon }) => (
-            <button key={id} onClick={() => setTab(id)} title={label} className={`nav-item${tab === id ? ' nav-item--active' : ''}`}>
+            <button key={id} onClick={() => { setTab(id); setMobileDrawerOpen(false) }} title={label} className={`nav-item${tab === id ? ' nav-item--active' : ''}`}>
               <span className="nav-item__icon">{icon}</span>
               <span className="nav-item__label">{label}</span>
             </button>
@@ -297,6 +313,41 @@ function AppContent({ onLogout }) {
       </main>
 
       {toast && <div className={`toast toast--${toast.type}`}>{toast.text}</div>}
+
+      {mobileDrawerOpen && (
+        <div className="mobile-drawer-backdrop" onClick={() => setMobileDrawerOpen(false)} />
+      )}
+
+      <nav className="mobile-bottom-nav">
+        <button
+          className={`mobile-bottom-nav__item${tab === 'terminal' && salesSubTab === 'nueva' ? ' mobile-bottom-nav__item--active' : ''}`}
+          onClick={() => { setTab('terminal'); setSalesSubTab('nueva'); setMobileDrawerOpen(false) }}
+        >
+          <span className="mobile-bottom-nav__icon">{NAV[0].icon}</span>
+          <span>Ventas</span>
+        </button>
+        <button
+          className={`mobile-bottom-nav__item${tab === 'terminal' && salesSubTab === 'historial' ? ' mobile-bottom-nav__item--active' : ''}`}
+          onClick={() => { setTab('terminal'); setSalesSubTab('historial'); setMobileDrawerOpen(false) }}
+        >
+          <span className="mobile-bottom-nav__icon">{ICON_HISTORIAL}</span>
+          <span>Historial</span>
+        </button>
+        <button
+          className={`mobile-bottom-nav__item${tab === 'inventario' ? ' mobile-bottom-nav__item--active' : ''}`}
+          onClick={() => { setTab('inventario'); setMobileDrawerOpen(false) }}
+        >
+          <span className="mobile-bottom-nav__icon">{NAV[1].icon}</span>
+          <span>Inventario</span>
+        </button>
+        <button
+          className={`mobile-bottom-nav__item${mobileDrawerOpen ? ' mobile-bottom-nav__item--active' : ''}`}
+          onClick={() => setMobileDrawerOpen((o) => !o)}
+        >
+          <span className="mobile-bottom-nav__icon">{ICON_MENU}</span>
+          <span>Más</span>
+        </button>
+      </nav>
     </div>
   )
 }
