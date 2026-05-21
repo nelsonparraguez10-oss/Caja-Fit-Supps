@@ -52,7 +52,24 @@ export async function runMigrationIfNeeded() {
 
   const sid = user.id
 
-  // Verificar si hay algo que migrar
+  // Si Supabase ya tiene datos para esta tienda, la migración fue completada en otro PC.
+  // Marcar como done aquí para evitar que datos borrados en Supabase vuelvan a aparecer.
+  const { count: salesCount } = await supabase
+    .from('sales')
+    .select('id', { count: 'exact', head: true })
+    .eq('store_id', sid)
+
+  const { count: prodCount } = await supabase
+    .from('products')
+    .select('id', { count: 'exact', head: true })
+    .eq('store_id', sid)
+
+  if ((salesCount ?? 0) > 0 || (prodCount ?? 0) > 0) {
+    localStorage.setItem(MIGRATION_FLAG, 'done')
+    return { skipped: true, reason: 'supabase-has-data' }
+  }
+
+  // Verificar si hay algo que migrar en localStorage
   const hasData = Object.values(LS).some((key) => {
     try {
       const v = JSON.parse(localStorage.getItem(key))

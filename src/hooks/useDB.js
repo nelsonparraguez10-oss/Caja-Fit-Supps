@@ -10,7 +10,7 @@ export function useProducts() {
   const refresh = useCallback(async () => setProducts(await dbProducts.getAll()), [])
 
   useEffect(() => {
-    dbProducts.seed().then(refresh)
+    refresh()
   }, [refresh])
 
   return {

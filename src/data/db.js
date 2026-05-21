@@ -1,6 +1,5 @@
 // Persistencia sobre Supabase — reemplaza la versión localStorage
 import { supabase, getStoreId } from '../lib/supabase'
-import { PRODUCT_SEED } from './productSeed'
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2)
 
@@ -237,11 +236,6 @@ export const products = {
     await supabase.rpc('decrement_stock', { p_store_id: sid(), p_barcode: barcode, p_qty: qty })
   },
 
-  seed: async () => {
-    const all = await products.getAll()
-    if (all.length > 0 && all[0].proveedor !== undefined) return
-    for (const p of PRODUCT_SEED) await products.create(p)
-  },
 }
 
 // ── Sales ─────────────────────────────────────────────────────────────────────
