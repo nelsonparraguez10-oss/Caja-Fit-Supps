@@ -1767,7 +1767,7 @@ td button.btn-danger:hover { color: var(--danger);  }
     padding: 12px;
     border-bottom: 1px solid var(--border);
   }
-  .products-table tbody td { display: none; }
+  .products-table tbody td { display: none; border-bottom: none; padding: 0; }
   .products-table tbody td:nth-child(2)  {
     display: block; width: 100%; font-weight: 600; font-size: 14px; line-height: 1.3;
   }
@@ -1801,7 +1801,7 @@ td button.btn-danger:hover { color: var(--danger);  }
     border-bottom: 1px solid var(--border-sub, rgba(255,255,255,.06));
     margin-bottom: 2px;
   }
-  .sales-history table tbody td { display: none; }
+  .sales-history table tbody td { display: none; border-bottom: none; padding: 0; }
 
   /* Fila 1: Fecha+Hora (izq) · Canal (der) */
   .sales-history table tbody td:nth-child(1) {
