@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import * as XLSX from 'xlsx'
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { calcAnalytics, calcInventoryCapital, formatCLP } from '../utils/calculations'
 
 const PERIODS    = [{ key: 'today', label: 'Hoy' }, { key: 'week', label: 'Semana' }, { key: 'month', label: 'Mes' }, { key: 'all', label: 'Todo' }]
@@ -122,6 +123,151 @@ function BRow({ label, value, indent, separator, total, hide }) {
   )
 }
 
+// ── Revenue Area Chart ────────────────────────────────────────────────────────
+const MES_LABELS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+
+function compactCLP(v) {
+  const abs = Math.abs(v)
+  if (abs >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`
+  if (abs >= 1_000)     return `$${(v / 1_000).toFixed(0)}K`
+  return `$${Math.round(v)}`
+}
+
+function ChartTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="chart-tooltip">
+      <p className="chart-tooltip__label">{label}</p>
+      {payload.map((p) => (
+        <div key={p.dataKey} className="chart-tooltip__row" style={{ color: p.color }}>
+          <span>{p.name}</span>
+          <span>{formatCLP(p.value)}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function weekStartKey(dateStr) {
+  // slice(0,10) handles both "YYYY-MM-DD" and "YYYY-MM-DDTHH:mm:ssZ" formats
+  const d = new Date(dateStr.slice(0, 10) + 'T12:00:00')
+  const day = d.getDay()
+  d.setDate(d.getDate() - (day === 0 ? 6 : day - 1))
+  return d.toISOString().slice(0, 10)
+}
+
+function RevenueChart({ sales, expenses, docs }) {
+  const { data, granTitle, subtitle } = useMemo(() => {
+    const allTs = [
+      ...sales.map((s) => s.date),
+      ...expenses.map((e) => e.date),
+      ...(docs || []).map((d) => d.fechaEmision),
+    ].filter(Boolean).map((s) => new Date(s).getTime()).filter((t) => !isNaN(t))
+
+    if (allTs.length === 0) return { data: [], granTitle: 'TENDENCIA', subtitle: '' }
+
+    const minTs   = Math.min(...allTs)
+    const maxTs   = Math.max(...allTs)
+    const spanDays = (maxTs - minTs) / 86400000
+
+    // granularity thresholds
+    const gran = spanDays <= 31 ? 'day' : spanDays <= 180 ? 'week' : spanDays <= 730 ? 'month' : 'year'
+
+    function getKey(dateStr) {
+      if (!dateStr) return null
+      if (gran === 'day')   return dateStr.slice(0, 10)
+      if (gran === 'week')  return weekStartKey(dateStr)
+      if (gran === 'month') return dateStr.slice(0, 7)
+      return dateStr.slice(0, 4)
+    }
+
+    function fmtLabel(key) {
+      const d = new Date(key + 'T12:00:00')
+      if (gran === 'day'  ) return `${d.getDate()} ${MES_LABELS[d.getMonth()]}`
+      if (gran === 'week' ) return `${d.getDate()} ${MES_LABELS[d.getMonth()]}`
+      if (gran === 'month') return MES_LABELS[parseInt(key.slice(5), 10) - 1]
+      return key
+    }
+
+    const map = {}
+    const ensure = (k) => { if (!map[k]) map[k] = { s: [], e: [], d: [] } }
+
+    sales.filter((s) => s.status !== 'VOIDED').forEach((s) => {
+      const k = getKey(s.date); if (!k) return; ensure(k); map[k].s.push(s)
+    })
+    expenses.forEach((e) => {
+      const k = getKey(e.date); if (!k) return; ensure(k); map[k].e.push(e)
+    })
+    ;(docs || []).filter((d) => d.estado !== 'ANULADA').forEach((d) => {
+      const k = getKey(d.fechaEmision); if (!k) return; ensure(k); map[k].d.push(d)
+    })
+
+    const chartData = Object.entries(map)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, { s, e, d }]) => {
+        const m = calcAnalytics(s, e, d)
+        return { mes: fmtLabel(key), ventasBrutas: m.ventasBrutas, gastos: m.gastosTotal, utilidadNeta: m.margenProductos }
+      })
+
+    const minD  = new Date(minTs)
+    const maxD  = new Date(maxTs)
+    const yMin  = minD.getFullYear()
+    const yMax  = maxD.getFullYear()
+    const range = yMin === yMax ? `${yMin}` : `${yMin} – ${yMax}`
+    const granLabelMap = { day: 'por día', week: 'por semana', month: 'por mes', year: 'por año' }
+    const titleMap     = { day: 'TENDENCIA DIARIA', week: 'TENDENCIA SEMANAL', month: 'TENDENCIA MENSUAL', year: 'TENDENCIA ANUAL' }
+
+    return {
+      data: chartData,
+      granTitle: titleMap[gran],
+      subtitle: `Ventas brutas · Gastos · Margen neto — ${range} (${granLabelMap[gran]})`,
+    }
+  }, [sales, expenses, docs])
+
+  if (data.length === 0) return null
+
+  return (
+    <section className="analytics__card analytics__card--chart">
+      <div className="chart-header">
+        <div>
+          <p className="analytics__card-title" style={{ marginBottom: 3 }}>{granTitle}</p>
+          <p className="chart-subtitle">{subtitle}</p>
+        </div>
+        <div className="chart-legend">
+          <span style={{ color: '#8b9ab5' }}>● Ventas Brutas</span>
+          <span style={{ color: '#f97316' }}>● Gastos</span>
+          <span style={{ color: '#0A84FF' }}>● Margen Neto</span>
+        </div>
+      </div>
+      <ResponsiveContainer width="100%" height={240}>
+        <AreaChart data={data} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id="gVentas" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%"  stopColor="#8b9ab5" stopOpacity={0.28} />
+              <stop offset="95%" stopColor="#8b9ab5" stopOpacity={0.02} />
+            </linearGradient>
+            <linearGradient id="gGastos" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%"  stopColor="#f97316" stopOpacity={0.28} />
+              <stop offset="95%" stopColor="#f97316" stopOpacity={0.02} />
+            </linearGradient>
+            <linearGradient id="gUtilidad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%"  stopColor="#0A84FF" stopOpacity={0.38} />
+              <stop offset="95%" stopColor="#0A84FF" stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+          <XAxis dataKey="mes" tick={{ fill: '#636366', fontSize: 11, fontFamily: 'inherit' }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fill: '#636366', fontSize: 10, fontFamily: 'inherit' }} axisLine={false} tickLine={false} tickFormatter={compactCLP} width={56} />
+          <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.08)', strokeWidth: 1 }} />
+          <Area type="monotone" dataKey="ventasBrutas" name="Ventas Brutas" stroke="#8b9ab5" strokeWidth={2} fill="url(#gVentas)"   dot={false} activeDot={{ r: 4, fill: '#8b9ab5', strokeWidth: 0 }} />
+          <Area type="monotone" dataKey="gastos"       name="Gastos"        stroke="#f97316" strokeWidth={2} fill="url(#gGastos)"   dot={false} activeDot={{ r: 4, fill: '#f97316', strokeWidth: 0 }} />
+          <Area type="monotone" dataKey="utilidadNeta" name="Margen Neto"   stroke="#0A84FF" strokeWidth={2} fill="url(#gUtilidad)" dot={false} activeDot={{ r: 4, fill: '#0A84FF', strokeWidth: 0 }} />
+        </AreaChart>
+      </ResponsiveContainer>
+    </section>
+  )
+}
+
 export function Analytics({ sales, expenses, products, docs = [] }) {
   const [period,       setPeriod]  = useState('month')
   const [stagnantDays, setStagnant] = useState(30)
@@ -193,6 +339,9 @@ export function Analytics({ sales, expenses, products, docs = [] }) {
           </button>
         </div>
       </div>
+
+      {/* Gráfico de tendencia anual */}
+      <RevenueChart sales={sales} expenses={expenses} docs={docs} />
 
       {/* Capital en inventario */}
       <section className="analytics__card analytics__card--capital">
