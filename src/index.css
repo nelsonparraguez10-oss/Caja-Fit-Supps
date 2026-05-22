@@ -1011,6 +1011,16 @@ td button.btn-danger:hover { color: var(--danger);  }
   text-align: right; font-weight: 700; font-size: 13px;
   color: var(--accent); margin-top: 8px;
 }
+.exp-section__header-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.exp-section__header-row .exp-section__title { margin-bottom: 0; }
+.exp-section__badge {
+  font-size: 10px; font-weight: 600; padding: 2px 8px;
+  border-radius: 99px; background: rgba(10,132,255,.15); color: var(--accent);
+}
+.row--current-month td { color: var(--text1); }
+.row--current-month { background: rgba(10,132,255,.04); }
 
 /* ── Template cards ──────────────────────────────────────────────────────────── */
 .tpl-card {
@@ -1049,7 +1059,11 @@ td button.btn-danger:hover { color: var(--danger);  }
   transition: all .15s; white-space: nowrap;
 }
 .tpl-card__right button:hover       { border-color: var(--accent); color: var(--accent); }
-.tpl-card__right button.btn-danger:hover { border-color: var(--danger); color: var(--danger); }
+.tpl-card__right button.btn-danger:hover  { border-color: var(--danger); color: var(--danger); }
+.tpl-card__right button.btn-secondary     { border-color: rgba(10,132,255,.4); color: var(--accent); }
+.tpl-card__right button.btn-secondary:hover { border-color: var(--accent); background: rgba(10,132,255,.08); }
+.tpl-form-hint  { font-size: 11px; color: var(--text3); margin: 4px 0 0; }
+.impute-date-label { font-size: 11px; color: var(--text3); white-space: nowrap; }
 
 /* ── Badges ──────────────────────────────────────────────────────────────────── */
 .doc-badge {

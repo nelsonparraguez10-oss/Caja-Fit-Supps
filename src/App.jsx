@@ -151,13 +151,11 @@ function AppContent({ onLogout }) {
   const { cfg, save: saveSettings } = useSettings()
   const cart = useCart(cfg, products)
 
-  // Migración y auto-imputación al montar (una sola vez, la sesión ya está activa)
+  // Migración al montar y reparación de gastos fijos con tipo incorrecto
   useEffect(() => {
     runMigrationIfNeeded()
-
-    dbTemplates.autoImputeMonth().then(() => {
+    dbTemplates.fixWrongTypes().then(() => {
       refreshExpenses()
-      refreshTemplates()
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -196,6 +194,21 @@ function AppContent({ onLogout }) {
 
   const handleImputeTemplate = async (id, date) => {
     await _imputeNow(id, date)
+    await refreshExpenses()
+  }
+
+  // Crea plantilla e imputa en el mismo paso (cuando el form incluye fecha)
+  const handleCreateAndImpute = async (data, date) => {
+    const created = await createTemplate(data)
+    if (created?.id && date) {
+      await handleImputeTemplate(created.id, date)
+    }
+  }
+
+  // Elimina la imputación del mes actual de una plantilla y la reimputa con nueva fecha
+  const handleReimputeTemplate = async (expenseId, templateId, date) => {
+    await removeExpense(expenseId)
+    await _imputeNow(templateId, date)
     await refreshExpenses()
   }
 
@@ -297,9 +310,11 @@ function AppContent({ onLogout }) {
             onUpdate={updateExpense}
             onRemove={removeExpense}
             onCreateTemplate={createTemplate}
+            onCreateAndImpute={handleCreateAndImpute}
             onUpdateTemplate={updateTemplate}
             onRemoveTemplate={removeTemplate}
             onImputeTemplate={handleImputeTemplate}
+            onReimputeTemplate={handleReimputeTemplate}
           />
         )}
 

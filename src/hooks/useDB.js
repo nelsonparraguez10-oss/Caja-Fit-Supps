@@ -61,7 +61,7 @@ export function useExpenseTemplates() {
   return {
     templates,
     refresh,
-    create:    async (t)           => { await dbTemplates.create(t);           await refresh() },
+    create:    async (t)           => { const r = await dbTemplates.create(t); await refresh(); return r },
     update:    async (id, updates) => { await dbTemplates.update(id, updates); await refresh() },
     remove:    async (id)          => { await dbTemplates.delete(id);          await refresh() },
     imputeNow: async (id, date)    => { await dbTemplates.imputeNow(id, date); await refresh() },

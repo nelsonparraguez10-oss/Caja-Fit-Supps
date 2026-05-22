@@ -351,6 +351,16 @@ export const expenseTemplates = {
     await supabase.from('expense_templates').delete().eq('store_id', sid()).eq('id', id)
   },
 
+  // Corrige gastos imputados desde plantilla que quedaron con type='variable' por bug anterior
+  fixWrongTypes: async () => {
+    const storeId = sid()
+    await supabase.from('expenses')
+      .update({ type: 'fixed' })
+      .eq('store_id', storeId)
+      .not('template_id', 'is', null)
+      .eq('type', 'variable')
+  },
+
   imputeNow: async (templateId, date) => {
     const storeId = sid()
     const { data } = await supabase.from('expense_templates').select('*')

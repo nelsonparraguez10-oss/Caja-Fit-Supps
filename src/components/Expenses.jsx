@@ -17,7 +17,7 @@ const calcIvaCredito = (amount, docType) =>
   docType === 'factura' ? amount - amount / 1.19 : 0
 
 // ── Formulario de plantilla (gastos fijos) ────────────────────────────────────
-const EMPTY_TPL = { description: '', amount: '', docType: 'boleta' }
+const EMPTY_TPL = { description: '', amount: '', docType: 'boleta', imputDate: today() }
 
 function TemplateForm({ editId, initial, onSubmit, onCancel }) {
   const [form, setForm] = useState(initial ?? EMPTY_TPL)
@@ -41,9 +41,22 @@ function TemplateForm({ editId, initial, onSubmit, onCancel }) {
         <select value={form.docType} onChange={(e) => set('docType', e.target.value)}>
           {DOC_TYPES.map((d) => <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>)}
         </select>
+        {!editId && (
+          <input
+            type="date"
+            value={form.imputDate}
+            onChange={(e) => set('imputDate', e.target.value)}
+            title="Fecha de imputación para este mes"
+          />
+        )}
         <button type="submit">{editId ? 'GUARDAR' : 'AGREGAR'}</button>
         {editId && <button type="button" onClick={onCancel}>CANCELAR</button>}
       </div>
+      {!editId && (
+        <p className="tpl-form-hint">
+          La fecha indica cuándo se imputa este gasto en el mes actual.
+        </p>
+      )}
       {ivaPreview > 0 && (
         <p className="iva-preview">
           IVA Credito Fiscal: {formatCLP(ivaPreview)} &nbsp;|&nbsp; Neto: {formatCLP(parseFloat(form.amount) - ivaPreview)}
@@ -99,25 +112,28 @@ function VariableForm({ editId, initial, onSubmit, onCancel }) {
 export function Expenses({
   expenses, templates,
   onCreate, onUpdate, onRemove,
-  onCreateTemplate, onUpdateTemplate, onRemoveTemplate, onImputeTemplate,
+  onCreateTemplate, onCreateAndImpute, onUpdateTemplate, onRemoveTemplate,
+  onImputeTemplate, onReimputeTemplate,
 }) {
   const [tab, setTab]             = useState('fixed')
   const [editVarId, setEditVarId] = useState(null)
   const [editTplId, setEditTplId] = useState(null)
-  const [imputeTarget, setImputeTarget] = useState(null) // { id, date }
+  const [imputeTarget, setImputeTarget] = useState(null) // { id, date, mode: 'new'|'change' }
 
   const now          = new Date()
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
-  const varExpenses   = useMemo(() => expenses.filter((e) => e.type === 'variable'),  [expenses])
+  const varExpenses    = useMemo(() => expenses.filter((e) => e.type === 'variable'), [expenses])
+  const fixedAll       = useMemo(() => expenses.filter((e) => e.type === 'fixed')
+    .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? '')), [expenses])
   const fixedThisMonth = useMemo(() =>
-    expenses.filter((e) => e.type === 'fixed' && e.date?.startsWith(currentMonth)),
-    [expenses, currentMonth],
+    fixedAll.filter((e) => e.date?.startsWith(currentMonth)),
+    [fixedAll, currentMonth],
   )
 
-  const totalFijo   = fixedThisMonth.reduce((a, e) => a + e.amount, 0)
-  const totalVar    = varExpenses.reduce((a, e)   => a + e.amount, 0)
-  const totalCredito = expenses.reduce((a, e)    => a + (e.ivaCredito || 0), 0)
+  const totalFijo    = fixedThisMonth.reduce((a, e) => a + e.amount, 0)
+  const totalVar     = varExpenses.reduce((a, e)    => a + e.amount, 0)
+  const totalCredito = expenses.reduce((a, e)       => a + (e.ivaCredito || 0), 0)
 
   return (
     <div className="expenses">
@@ -156,8 +172,13 @@ export function Expenses({
             editId={editTplId}
             initial={editTplId ? (() => { const t = templates.find(x => x.id === editTplId); return t ? { description: t.description, amount: String(t.amount), docType: t.docType } : EMPTY_TPL })() : null}
             onSubmit={(data) => {
-              if (editTplId) { onUpdateTemplate(editTplId, data); setEditTplId(null) }
-              else onCreateTemplate(data)
+              if (editTplId) {
+                onUpdateTemplate(editTplId, data)
+                setEditTplId(null)
+              } else {
+                const { imputDate, ...tplData } = data
+                onCreateAndImpute(tplData, imputDate)
+              }
             }}
             onCancel={() => setEditTplId(null)}
           />
@@ -184,22 +205,50 @@ export function Expenses({
                       <span className={`imputation-status${imputado ? ' ok' : ' pending'}`}>
                         {imputado ? `Imputado ${monthLabel(t.lastImputedMonth)}` : 'Pendiente este mes'}
                       </span>
+
+                      {/* Pendiente: botón IMPUTAR con date picker */}
                       {!imputado && imputeTarget?.id !== t.id && (
-                        <button onClick={() => setImputeTarget({ id: t.id, date: today() })}>IMPUTAR</button>
+                        <button onClick={() => setImputeTarget({ id: t.id, date: today(), mode: 'new' })}>IMPUTAR</button>
                       )}
-                      {!imputado && imputeTarget?.id === t.id && (
+
+                      {/* Ya imputado: botón CAMBIAR FECHA */}
+                      {imputado && imputeTarget?.id !== t.id && (
+                        <button
+                          className="btn-secondary"
+                          onClick={() => {
+                            const existing = fixedThisMonth.find((e) => e.templateId === t.id)
+                            setImputeTarget({ id: t.id, expenseId: existing?.id, date: existing?.date ?? today(), mode: 'change' })
+                          }}
+                        >
+                          CAMBIAR FECHA
+                        </button>
+                      )}
+
+                      {/* Date picker inline (IMPUTAR o CAMBIAR FECHA) */}
+                      {imputeTarget?.id === t.id && (
                         <div className="impute-date-row">
+                          <span className="impute-date-label">
+                            {imputeTarget.mode === 'change' ? 'Nueva fecha:' : 'Fecha:'}
+                          </span>
                           <input
                             type="date"
                             value={imputeTarget.date}
                             onChange={(e) => setImputeTarget((p) => ({ ...p, date: e.target.value }))}
                           />
-                          <button onClick={() => { onImputeTemplate(imputeTarget.id, imputeTarget.date); setImputeTarget(null) }}>
+                          <button onClick={() => {
+                            if (imputeTarget.mode === 'change' && imputeTarget.expenseId) {
+                              onReimputeTemplate(imputeTarget.expenseId, imputeTarget.id, imputeTarget.date)
+                            } else {
+                              onImputeTemplate(imputeTarget.id, imputeTarget.date)
+                            }
+                            setImputeTarget(null)
+                          }}>
                             CONFIRMAR
                           </button>
                           <button onClick={() => setImputeTarget(null)}>CANCELAR</button>
                         </div>
                       )}
+
                       <button onClick={() => setEditTplId(t.id)}>EDITAR</button>
                       <button className="btn-danger" onClick={() => onRemoveTemplate(t.id)}>ELIMINAR</button>
                     </div>
@@ -209,10 +258,13 @@ export function Expenses({
             )}
           </section>
 
-          {/* Historial fijos este mes */}
-          {fixedThisMonth.length > 0 && (
+          {/* Historial completo de gastos fijos */}
+          {fixedAll.length > 0 && (
             <section className="exp-section">
-              <h3 className="exp-section__title">IMPUTADOS ESTE MES</h3>
+              <div className="exp-section__header-row">
+                <h3 className="exp-section__title">HISTORIAL DE IMPUTACIONES</h3>
+                <span className="exp-section__badge">{fixedThisMonth.length} este mes</span>
+              </div>
               <table>
                 <thead>
                   <tr>
@@ -221,19 +273,23 @@ export function Expenses({
                   </tr>
                 </thead>
                 <tbody>
-                  {fixedThisMonth.map((e) => (
-                    <tr key={e.id}>
-                      <td>{e.date}</td>
-                      <td>{e.description}</td>
-                      <td>{formatCLP(e.amount)}</td>
-                      <td><span className={`doc-badge doc-badge--${e.docType}`}>{e.docType?.toUpperCase() ?? '—'}</span></td>
-                      <td>{e.ivaCredito ? formatCLP(e.ivaCredito) : '—'}</td>
-                      <td className="text-muted">{e.autoGenerated ? 'Auto' : 'Manual'}</td>
-                      <td><button className="btn-danger" onClick={() => onRemove(e.id)}>ELIMINAR</button></td>
-                    </tr>
-                  ))}
+                  {fixedAll.map((e) => {
+                    const esEsteMes = e.date?.startsWith(currentMonth)
+                    return (
+                      <tr key={e.id} className={esEsteMes ? 'row--current-month' : ''}>
+                        <td>{e.date}</td>
+                        <td>{e.description}</td>
+                        <td>{formatCLP(e.amount)}</td>
+                        <td><span className={`doc-badge doc-badge--${e.docType}`}>{e.docType?.toUpperCase() ?? '—'}</span></td>
+                        <td>{e.ivaCredito ? formatCLP(e.ivaCredito) : '—'}</td>
+                        <td className="text-muted">{e.autoGenerated ? 'Auto' : 'Manual'}</td>
+                        <td><button className="btn-danger" onClick={() => onRemove(e.id)}>ELIMINAR</button></td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
+              <p className="exp-section__total">Total fijos este mes: {formatCLP(totalFijo)}</p>
             </section>
           )}
         </>
