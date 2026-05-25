@@ -3,19 +3,36 @@ export const IVA_RATE = 0.19
 export const calcNeto = (totalConIVA) => totalConIVA / (1 + IVA_RATE)
 export const calcIVA  = (totalConIVA) => totalConIVA - calcNeto(totalConIVA)
 
-export const calcCommissionFromCfg = (total, cfg, paymentMethod) => {
-  if (paymentMethod === 'debito') {
-    const { rate = 0.70, fixed = 0 } = cfg?.getnet?.debito ?? {}
-    return Math.round(total * (rate / 100) + fixed)
+export const calcCommissionFromCfg = (total, cfg, paymentMethod, cardBrand = null) => {
+  const posType = cfg?.posType ?? 'getnet'
+  const ufValue = cfg?.ufValue ?? 38500
+
+  if (paymentMethod === 'debito' || paymentMethod === 'credito') {
+    if (posType === 'getnet') {
+      const t = cfg?.getnet?.[paymentMethod]
+      if (!t) return 0
+      // Si se conoce la marca, usa su tarifa exacta
+      if (cardBrand === 'visa' || cardBrand === 'mastercard') {
+        const r = t[cardBrand]
+        return Math.round((total * ((r?.rate ?? 0) / 100) + (r?.fixedUF ?? 0) * ufValue) * 1.19)
+      }
+      // Sin marca: promedio como estimado
+      const visaComm = (total * ((t.visa?.rate ?? 0) / 100) + (t.visa?.fixedUF ?? 0) * ufValue) * 1.19
+      const mcComm   = (total * ((t.mastercard?.rate ?? 0) / 100) + (t.mastercard?.fixedUF ?? 0) * ufValue) * 1.19
+      return Math.round((visaComm + mcComm) / 2)
+    }
+    if (posType === 'tuu') {
+      const { rate = 1.49, fixed = 0 } = cfg?.tuu?.[paymentMethod] ?? {}
+      return Math.round(total * (rate / 100) + fixed)
+    }
+    return 0
   }
-  if (paymentMethod === 'credito') {
-    const { rate = 1.50, fixed = 0 } = cfg?.getnet?.credito ?? {}
-    return Math.round(total * (rate / 100) + fixed)
-  }
+
   if (paymentMethod === 'mercadopago' || paymentMethod === 'card') {
     const { rate = 5.99, fixed = 0 } = cfg?.mercadopago ?? {}
     return Math.round(total * (rate / 100) + fixed)
   }
+
   return 0
 }
 

@@ -31,9 +31,10 @@ export function useSales() {
   return {
     sales,
     refresh,
-    create:   async (sale) => { const s = await dbSales.create(sale); await refresh(); return s },
-    remove:   async (id)   => { await dbSales.delete(id);             await refresh() },
-    voidSale: async (id)   => { await dbSales.voidSale(id);           await refresh() },
+    create:          async (sale)                   => { const s = await dbSales.create(sale);                       await refresh(); return s },
+    remove:          async (id)                     => { await dbSales.delete(id);                                  await refresh() },
+    voidSale:        async (id)                     => { await dbSales.voidSale(id);                                await refresh() },
+    updateCardBrand: async (id, cardBrand, cardComm) => { await dbSales.updateCardBrand(id, cardBrand, cardComm);  await refresh() },
   }
 }
 

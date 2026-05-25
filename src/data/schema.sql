@@ -32,6 +32,7 @@ CREATE TABLE sales (
   effective_total  NUMERIC     NOT NULL DEFAULT 0,
   payment_method   TEXT,
   card_commission  NUMERIC              DEFAULT 0,
+  card_brand       TEXT,
   shipping         JSONB                DEFAULT '{"cobro":0,"costo":0,"margin":0}',
   status           TEXT        NOT NULL DEFAULT 'COMPLETED',
   voided_at        TIMESTAMPTZ,

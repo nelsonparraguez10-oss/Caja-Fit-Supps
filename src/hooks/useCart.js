@@ -2,13 +2,20 @@ import { useState, useCallback } from 'react'
 import { calcCommissionFromCfg } from '../utils/calculations'
 
 export function useCart(cfg, products) {
-  const [items, setItems]                   = useState([])
-  const [channel, setChannel]               = useState('POS')
-  const [paymentMethod, setPaymentMethod]   = useState('cash')
-  const [ecomReceived, setEcomReceived]     = useState('')
-  const [cobroEnvio, setCobroEnvio]         = useState('')
-  const [costoEnvio, setCostoEnvio]         = useState('')
-  const [discount, setDiscount]             = useState('')
+  const [items, setItems]                         = useState([])
+  const [channel, setChannel]                     = useState('POS')
+  const [paymentMethod, _setPaymentMethod]        = useState('cash')
+  const [cardBrand, setCardBrand]                 = useState(null) // 'visa' | 'mastercard' | null
+  const [ecomReceived, setEcomReceived]           = useState('')
+  const [cobroEnvio, setCobroEnvio]               = useState('')
+  const [costoEnvio, setCostoEnvio]               = useState('')
+  const [discount, setDiscount]                   = useState('')
+
+  // Al cambiar método de pago, resetea la marca seleccionada
+  const setPaymentMethod = useCallback((method) => {
+    _setPaymentMethod(method)
+    setCardBrand(null)
+  }, [])
 
   const addItem = useCallback((barcode) => {
     const product = (products ?? []).find((p) => p.barcode === barcode)
@@ -66,7 +73,8 @@ export function useCart(cfg, products) {
   const clearCart = useCallback(() => {
     setItems([])
     setChannel('POS')
-    setPaymentMethod('cash')
+    _setPaymentMethod('cash')
+    setCardBrand(null)
     setEcomReceived('')
     setCobroEnvio('')
     setCostoEnvio('')
@@ -84,10 +92,9 @@ export function useCart(cfg, products) {
       ? (parseFloat(ecomReceived) || discountedListTotal)
       : discountedListTotal
 
-  // Comisión aplica en POS débito/crédito, y en ECOM se calcula para referencia
   const cardCommission =
     channel === 'POS' && (paymentMethod === 'debito' || paymentMethod === 'credito')
-      ? calcCommissionFromCfg(discountedListTotal, cfg, paymentMethod)
+      ? calcCommissionFromCfg(discountedListTotal, cfg, paymentMethod, cardBrand)
       : 0
 
   const mpCommission =
@@ -99,12 +106,13 @@ export function useCart(cfg, products) {
 
   return {
     items,
-    channel,       setChannel,
-    paymentMethod, setPaymentMethod,
-    ecomReceived,  setEcomReceived,
-    cobroEnvio,    setCobroEnvio,
-    costoEnvio,    setCostoEnvio,
-    discount,      setDiscount,
+    channel,        setChannel,
+    paymentMethod,  setPaymentMethod,
+    cardBrand,      setCardBrand,
+    ecomReceived,   setEcomReceived,
+    cobroEnvio,     setCobroEnvio,
+    costoEnvio,     setCostoEnvio,
+    discount,       setDiscount,
     listTotal,
     discountPct,
     discountAmount,

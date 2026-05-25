@@ -1,4 +1,4 @@
-import { calcNeto, calcIVA, formatCLP } from '../utils/calculations'
+import { calcNeto, calcIVA, formatCLP, IVA_RATE } from '../utils/calculations'
 import { DailySummary } from './DailySummary'
 
 const CHANNELS = [
@@ -16,6 +16,7 @@ const POS_PAYMENTS = [
 export function Cart({
   items, channel, setChannel,
   paymentMethod, setPaymentMethod,
+  cardBrand, setCardBrand,
   ecomReceived, setEcomReceived,
   cobroEnvio, setCobroEnvio,
   costoEnvio, setCostoEnvio,
@@ -30,7 +31,15 @@ export function Cart({
   const shipCobro    = parseFloat(cobroEnvio) || 0
   const shipCosto    = parseFloat(costoEnvio) || 0
 
-  const mpRate       = cfg?.mercadopago?.rate ?? 5.99
+  const mpRate   = cfg?.mercadopago?.rate ?? 5.99
+  const posType  = cfg?.posType ?? 'getnet'
+  const ufValue  = cfg?.ufValue ?? 38500
+
+  const getnetBrandComm = (pmType, brand) => {
+    const r = cfg?.getnet?.[pmType]?.[brand]
+    if (!r) return 0
+    return Math.round((effectiveTotal * (r.rate / 100) + r.fixedUF * ufValue) * (1 + IVA_RATE))
+  }
 
   return (
     <div className="cart">
@@ -187,14 +196,47 @@ export function Cart({
                   </button>
                 ))}
               </div>
+              {(paymentMethod === 'debito' || paymentMethod === 'credito') && posType === 'getnet' && (
+                <div className="brand-selector">
+                  <span className="brand-selector__label">Marca</span>
+                  {['visa', 'mastercard'].map((brand) => (
+                    <button
+                      key={brand}
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => setCardBrand(cardBrand === brand ? null : brand)}
+                      className={`brand-btn brand-btn--${brand}${cardBrand === brand ? ' brand-btn--active' : ''}`}
+                    >
+                      {brand === 'visa' ? 'Visa' : 'Mastercard'}
+                    </button>
+                  ))}
+                </div>
+              )}
               {(paymentMethod === 'debito' || paymentMethod === 'credito') && (
-                <p className="commission-note">
-                  Comisión {paymentMethod === 'debito' ? 'débito' : 'crédito'} ({
-                    paymentMethod === 'debito'
-                      ? cfg?.getnet?.debito?.rate ?? 0.70
-                      : cfg?.getnet?.credito?.rate ?? 1.50
-                  }%): {formatCLP(cardCommission)}
-                </p>
+                <div className="commission-note">
+                  {posType === 'getnet' ? (
+                    cardBrand ? (
+                      <span>
+                        Comisión {paymentMethod === 'debito' ? 'débito' : 'crédito'} {cardBrand === 'visa' ? 'Visa' : 'Mastercard'} (incl. IVA): {formatCLP(cardCommission)}
+                      </span>
+                    ) : (
+                      <>
+                        <span>Est. comisión {paymentMethod === 'debito' ? 'débito' : 'crédito'} Getnet (incl. IVA):</span>
+                        <span>
+                          Visa {formatCLP(getnetBrandComm(paymentMethod, 'visa'))} &nbsp;|&nbsp;
+                          MC {formatCLP(getnetBrandComm(paymentMethod, 'mastercard'))}
+                        </span>
+                      </>
+                    )
+                  ) : (
+                    <span>
+                      Comisión {paymentMethod === 'debito' ? 'débito' : 'crédito'} (
+                      {paymentMethod === 'debito'
+                        ? cfg?.tuu?.debito?.rate ?? 1.49
+                        : cfg?.tuu?.credito?.rate ?? 1.99}%): {formatCLP(cardCommission)}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           )}

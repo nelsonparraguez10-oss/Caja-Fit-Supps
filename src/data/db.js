@@ -53,6 +53,7 @@ function fromDbSale(r) {
     total:          Number(r.effective_total),
     paymentMethod:  r.payment_method,
     cardCommission: Number(r.card_commission),
+    cardBrand:      r.card_brand ?? null,
     shipping:       r.shipping,
     status:         r.status,
     voidedAt:       r.voided_at,
@@ -71,6 +72,7 @@ function toDbSale(s, storeId) {
     effective_total: eff,
     payment_method:  s.paymentMethod   ?? null,
     card_commission: s.cardCommission  ?? 0,
+    card_brand:      s.cardBrand       ?? null,
     shipping:        s.shipping        ?? { cobro: 0, costo: 0, margin: 0 },
     status:          s.status          ?? 'COMPLETED',
     voided_at:       s.voidedAt        ?? null,
@@ -258,6 +260,15 @@ export const sales = {
 
   delete: async (id) => {
     await supabase.from('sales').delete().eq('store_id', sid()).eq('id', id)
+  },
+
+  updateCardBrand: async (id, cardBrand, cardCommission) => {
+    const { error } = await supabase
+      .from('sales')
+      .update({ card_brand: cardBrand, card_commission: cardCommission })
+      .eq('store_id', sid())
+      .eq('id', id)
+    if (error) throw error
   },
 
   voidSale: async (id) => {

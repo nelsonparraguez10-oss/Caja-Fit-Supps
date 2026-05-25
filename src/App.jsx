@@ -135,7 +135,7 @@ function AppContent({ onLogout }) {
   })
 
   const { products, refresh: refreshProducts, create: createProduct, update: updateProduct, remove: removeProduct } = useProducts()
-  const { sales, create: createSale, voidSale }                                                                     = useSales()
+  const { sales, create: createSale, voidSale, updateCardBrand }                                                    = useSales()
 
   const { expenses, refresh: refreshExpenses,
           create: createExpense, update: updateExpense, remove: removeExpense } = useExpenses()
@@ -175,6 +175,7 @@ function AppContent({ onLogout }) {
       effectiveTotal: cart.effectiveTotal,
       paymentMethod:  cart.channel === 'ECOM' ? 'mercadopago' : cart.paymentMethod,
       cardCommission: cart.channel === 'ECOM' ? cart.mpCommission : cart.cardCommission,
+      cardBrand:      cart.channel === 'POS' ? (cart.cardBrand ?? null) : null,
       shipping: {
         cobro:  parseFloat(cart.cobroEnvio) || 0,
         costo:  parseFloat(cart.costoEnvio) || 0,
@@ -190,6 +191,11 @@ function AppContent({ onLogout }) {
     await voidSale(id)
     await refreshProducts()
     showToast('Venta anulada — stock devuelto al inventario', 'success')
+  }
+
+  const handleUpdateCardBrand = async (id, cardBrand, cardCommission) => {
+    await updateCardBrand(id, cardBrand, cardCommission)
+    showToast('Marca de tarjeta actualizada')
   }
 
   const handleImputeTemplate = async (id, date) => {
@@ -265,6 +271,7 @@ function AppContent({ onLogout }) {
                   items={cart.items}
                   channel={cart.channel}               setChannel={cart.setChannel}
                   paymentMethod={cart.paymentMethod}   setPaymentMethod={cart.setPaymentMethod}
+                  cardBrand={cart.cardBrand}           setCardBrand={cart.setCardBrand}
                   ecomReceived={cart.ecomReceived}     setEcomReceived={cart.setEcomReceived}
                   cobroEnvio={cart.cobroEnvio}         setCobroEnvio={cart.setCobroEnvio}
                   costoEnvio={cart.costoEnvio}         setCostoEnvio={cart.setCostoEnvio}
@@ -285,7 +292,12 @@ function AppContent({ onLogout }) {
                 />
               </div>
             ) : (
-              <SalesHistory sales={sales} onVoid={handleVoidSale} />
+              <SalesHistory
+                sales={sales}
+                cfg={cfg}
+                onVoid={handleVoidSale}
+                onUpdateCardBrand={handleUpdateCardBrand}
+              />
             )}
           </div>
         )}

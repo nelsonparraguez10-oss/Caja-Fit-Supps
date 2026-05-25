@@ -1949,7 +1949,7 @@ td button.btn-danger:hover { color: var(--danger);  }
 /* ── Módulo Configuración ────────────────────────────────────────────────── */
 .cfg-module {
   padding: 28px;
-  max-width: 680px;
+  max-width: 760px;
 }
 .cfg-card {
   background: var(--surface);
@@ -2000,6 +2000,117 @@ td button.btn-danger:hover { color: var(--danger);  }
 .cfg-preview-value { font-size: 15px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
 
 .cfg-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ── Selector de marca Visa / Mastercard en carrito ─────────────────────── */
+.brand-selector {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 8px;
+}
+.brand-selector__label {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text3); flex-shrink: 0;
+}
+.brand-btn {
+  padding: 5px 14px; font-size: 12px; font-weight: 700;
+  border: 1px solid var(--border); border-radius: var(--r-sm);
+  background: var(--bg); color: var(--text2); cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.brand-btn:hover { border-color: var(--text2); color: var(--text1); }
+.brand-btn--active.brand-btn--visa       { background: #1a1f71; border-color: #1a1f71; color: #fff; }
+.brand-btn--active.brand-btn--mastercard { background: #eb001b; border-color: #eb001b; color: #fff; }
+
+/* Badge de marca en historial */
+.sale-method-cell { display: flex; align-items: center; gap: 6px; }
+.sale-brand-badge {
+  display: inline-block; padding: 2px 7px; font-size: 10px; font-weight: 700;
+  border-radius: 4px; cursor: pointer; border: 1px solid var(--border);
+  background: var(--bg); color: var(--text3); transition: opacity .15s;
+  letter-spacing: .04em;
+}
+.sale-brand-badge:hover               { opacity: .75; }
+.sale-brand-badge--visa               { background: rgba(26,31,113,.12); color: #1a1f71; border-color: rgba(26,31,113,.3); }
+.sale-brand-badge--mastercard         { background: rgba(235,0,27,.10); color: #c00018; border-color: rgba(235,0,27,.3); }
+.sale-brand-badge--empty              { background: rgba(255,159,10,.1); color: var(--warning); border-color: rgba(255,159,10,.3); }
+
+/* Modal de edición de marca */
+.brand-edit-options { display: flex; gap: 10px; margin: 16px 0; flex-wrap: wrap; }
+.brand-edit-btn {
+  flex: 1; min-width: 120px; padding: 12px 16px;
+  border: 2px solid var(--border); border-radius: var(--r-sm);
+  background: var(--bg); cursor: pointer;
+  display: flex; flex-direction: column; gap: 4px; align-items: center;
+  transition: border-color .15s, background .15s;
+}
+.brand-edit-btn:hover { border-color: var(--text2); }
+.brand-edit-btn span:first-child { font-size: 14px; font-weight: 700; color: var(--text1); }
+.brand-edit-comm { font-size: 11px; color: var(--text3); }
+.brand-edit-btn--active.brand-btn--visa       { border-color: #1a1f71; background: rgba(26,31,113,.08); }
+.brand-edit-btn--active.brand-btn--visa span:first-child { color: #1a1f71; }
+.brand-edit-btn--active.brand-btn--mastercard { border-color: #eb001b; background: rgba(235,0,27,.06); }
+.brand-edit-btn--active.brand-btn--mastercard span:first-child { color: #c00018; }
+
+/* Selector de tipo de POS */
+.cfg-pos-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+.cfg-pos-btn {
+  padding: 8px 20px; font-size: 12px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  border: 1px solid var(--border); border-radius: var(--r-sm);
+  background: var(--bg); color: var(--text2); cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.cfg-pos-btn:hover         { border-color: var(--text2); color: var(--text1); }
+.cfg-pos-btn--active       { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* Fila UF */
+.cfg-uf-row {
+  display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap;
+  padding: 12px 0 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.cfg-uf-refresh {
+  padding: 8px 14px; font-size: 11px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  border: 1px solid var(--accent); border-radius: var(--r-sm);
+  background: transparent; color: var(--accent); cursor: pointer;
+  transition: background .15s, color .15s;
+  white-space: nowrap; align-self: flex-end;
+}
+.cfg-uf-refresh:hover:not(:disabled)  { background: var(--accent); color: #fff; }
+.cfg-uf-refresh:disabled              { opacity: .5; cursor: not-allowed; }
+.cfg-uf-date {
+  font-size: 11px; color: var(--text3);
+  align-self: flex-end; padding-bottom: 9px;
+  white-space: nowrap;
+}
+
+/* Sección por tipo de pago Getnet (Débito, Crédito, etc.) */
+.cfg-getnet-type {
+  border-top: 1px solid var(--border);
+  padding: 14px 0 6px;
+}
+.cfg-getnet-type-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text3);
+  margin-bottom: 8px;
+}
+
+/* Fila por marca (Visa / Mastercard) */
+.cfg-brand-row {
+  display: flex; align-items: center; gap: 16px;
+  padding: 8px 0; flex-wrap: wrap;
+}
+.cfg-brand-label {
+  font-size: 12px; font-weight: 600; color: var(--text2);
+  min-width: 90px; flex-shrink: 0;
+}
+
+/* Input pequeño para campos UF */
+.cfg-input--sm { width: 84px; }
+
+/* Nota de comisión con dos líneas (Getnet Visa | MC) */
+.commission-note { display: flex; flex-direction: column; gap: 2px; }
 
 .cfg-card--sync { margin-top: 8px; }
 
