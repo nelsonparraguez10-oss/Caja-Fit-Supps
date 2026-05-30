@@ -406,8 +406,8 @@ export function Analytics({ sales, expenses, products, docs = [] }) {
         </section>
         <section className="analytics__kpi-card analytics__kpi-card--pos">
           <p className="analytics__kpi-label">UTILIDAD</p>
-          <p className="analytics__kpi-value">{formatCLP(m.ventasBrutas)}</p>
-          <p className="analytics__kpi-sub">Total vendido en el periodo</p>
+          <p className="analytics__kpi-value">{formatCLP(m.ventasNetas)}</p>
+          <p className="analytics__kpi-sub">Ventas netas del periodo</p>
         </section>
         <section className="analytics__kpi-card analytics__kpi-card--gastos">
           <p className="analytics__kpi-label">GASTOS</p>
