@@ -1129,7 +1129,72 @@ td button.btn-danger:hover { color: var(--danger);  }
   .chart-legend { flex-wrap: wrap; gap: 10px; }
 }
 
-/* ── Analytics: capital ──────────────────────────────────────────────────────── */
+/* ── Analytics: lock screen ──────────────────────────────────────────────────── */
+.analytics--locked {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 70vh;
+}
+.analytics-lock {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 40px 32px; max-width: 340px; width: 100%;
+  box-shadow: var(--shadow);
+}
+.analytics-lock__icon { color: var(--text3); }
+.analytics-lock__title { font-size: 20px; font-weight: 700; margin: 0; }
+.analytics-lock__sub   { font-size: 13px; color: var(--text3); margin: 0; }
+.analytics-lock__form  { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 8px; }
+.analytics-lock__input {
+  width: 100%; padding: 11px 14px; font-size: 16px; text-align: center; letter-spacing: .2em;
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm);
+  color: var(--text1); outline: none; transition: border-color .15s;
+}
+.analytics-lock__input:focus { border-color: var(--accent); }
+.analytics-lock__input--error { border-color: var(--danger) !important; animation: shake .3s; }
+.analytics-lock__btn {
+  width: 100%; padding: 11px; font-size: 14px; font-weight: 600;
+  background: var(--accent); color: #fff; border: none; border-radius: var(--r-sm);
+  cursor: pointer; transition: opacity .15s;
+}
+.analytics-lock__btn:hover { opacity: .85; }
+.analytics-lock__error { font-size: 12px; color: var(--danger); margin: 0; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-6px); }
+  75%       { transform: translateX(6px); }
+}
+
+/* ── Analytics: KPI cards ────────────────────────────────────────────────────── */
+.analytics__kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.analytics__kpi-card {
+  background: var(--surface); border-radius: var(--r);
+  border: 1px solid var(--border); box-shadow: var(--shadow);
+  padding: 18px 20px; display: flex; flex-direction: column; gap: 6px;
+  border-left-width: 3px; border-left-style: solid;
+}
+.analytics__kpi-card--capital    { border-left-color: var(--warning); }
+.analytics__kpi-card--pos        { border-left-color: var(--success); }
+.analytics__kpi-card--neg        { border-left-color: var(--danger); }
+.analytics__kpi-card--gastos     { border-left-color: #f97316; }
+.analytics__kpi-card--proveedores { border-left-color: var(--accent); }
+.analytics__kpi-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  color: var(--text3); text-transform: uppercase; margin: 0;
+}
+.analytics__kpi-value {
+  font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0;
+}
+.analytics__kpi-value--neg { color: var(--danger); }
+.analytics__kpi-sub {
+  font-size: 11px; color: var(--text3); margin: 0;
+}
+
+/* ── Analytics: capital (legacy — kept for CSS @media overrides) ─────────────── */
 .analytics__card--capital {
   border-left: 3px solid var(--warning);
   display: flex; align-items: baseline; gap: 24px; padding: 16px 24px;
@@ -1803,6 +1868,8 @@ td button.btn-danger:hover { color: var(--danger);  }
   .analytics__header       { flex-direction: column; gap: 10px; align-items: flex-start; }
   .analytics__grid-2       { grid-template-columns: 1fr; }
   .analytics__card--capital { flex-direction: column; gap: 6px; }
+  .analytics__kpi-grid     { grid-template-columns: 1fr 1fr; }
+  .analytics__kpi-value    { font-size: 18px; }
   .period-tabs             { flex-wrap: wrap; }
 
   /* Clientes / Documentos */
@@ -2417,7 +2484,7 @@ td { font-variant-numeric: tabular-nums; }
 }
 .analytics__card--capital {
   border-left: 3px solid var(--warning);
-  border-radius: var(--r-lg);
+  border-radius: var(--r);
 }
 
 /* ── 13. Área táctil — botones de cobro y acción ────────────────────── */

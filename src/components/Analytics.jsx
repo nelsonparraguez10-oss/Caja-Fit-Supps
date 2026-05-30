@@ -268,15 +268,44 @@ function RevenueChart({ sales, expenses, docs }) {
   )
 }
 
+const ANALYTICS_PIN = '899724'
+
+const ICON_LOCK = (
+  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </svg>
+)
+
 export function Analytics({ sales, expenses, products, docs = [] }) {
   const [period,       setPeriod]  = useState('month')
   const [stagnantDays, setStagnant] = useState(30)
+  const [unlocked,     setUnlocked] = useState(false)
+  const [pinInput,     setPinInput] = useState('')
+  const [pinError,     setPinError] = useState(false)
 
   const fSales    = useMemo(() => filterByPeriod(sales,    period),                [sales,    period])
   const fExpenses = useMemo(() => filterByPeriod(expenses, period, 'date'),         [expenses, period])
   const fDocs     = useMemo(() => filterByPeriod(docs,     period, 'fechaEmision'), [docs,     period])
   const m         = useMemo(() => calcAnalytics(fSales, fExpenses, fDocs),          [fSales, fExpenses, fDocs])
   const capital   = useMemo(() => calcInventoryCapital(products ?? []),              [products])
+
+  const proveedorAmount = useMemo(
+    () => fExpenses.filter((e) => e.subtype === 'Proveedor').reduce((acc, e) => acc + e.amount, 0),
+    [fExpenses],
+  )
+  const gastosAmount = m.gastosBase - proveedorAmount
+
+  const handlePinSubmit = (e) => {
+    e.preventDefault()
+    if (pinInput === ANALYTICS_PIN) {
+      setUnlocked(true)
+    } else {
+      setPinError(true)
+      setPinInput('')
+      setTimeout(() => setPinError(false), 2000)
+    }
+  }
 
   const trending = useMemo(() => {
     const map = {}
@@ -313,6 +342,31 @@ export function Analytics({ sales, expenses, products, docs = [] }) {
       .slice(0, 15)
   }, [sales, products, stagnantDays])
 
+  if (!unlocked) {
+    return (
+      <div className="analytics analytics--locked">
+        <div className="analytics-lock">
+          <div className="analytics-lock__icon">{ICON_LOCK}</div>
+          <h2 className="analytics-lock__title">Analíticas</h2>
+          <p className="analytics-lock__sub">Acceso restringido</p>
+          <form className="analytics-lock__form" onSubmit={handlePinSubmit}>
+            <input
+              type="password"
+              inputMode="numeric"
+              className={`analytics-lock__input${pinError ? ' analytics-lock__input--error' : ''}`}
+              value={pinInput}
+              onChange={(e) => setPinInput(e.target.value)}
+              placeholder="Contraseña"
+              autoFocus
+            />
+            <button type="submit" className="analytics-lock__btn">Ingresar</button>
+          </form>
+          {pinError && <p className="analytics-lock__error">Contraseña incorrecta</p>}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="analytics">
       {/* Encabezado */}
@@ -343,12 +397,29 @@ export function Analytics({ sales, expenses, products, docs = [] }) {
       {/* Gráfico de tendencia anual */}
       <RevenueChart sales={sales} expenses={expenses} docs={docs} />
 
-      {/* Capital en inventario */}
-      <section className="analytics__card analytics__card--capital">
-        <p className="analytics__card-title">CAPITAL EN INVENTARIO</p>
-        <p className="capital-value">{formatCLP(capital)}</p>
-        <p className="capital-sub">Valor de stock al costo neto actual</p>
-      </section>
+      {/* KPI Cards */}
+      <div className="analytics__kpi-grid">
+        <section className="analytics__kpi-card analytics__kpi-card--capital">
+          <p className="analytics__kpi-label">CAPITAL EN INVENTARIO</p>
+          <p className="analytics__kpi-value">{formatCLP(capital)}</p>
+          <p className="analytics__kpi-sub">Valor de stock al costo neto actual</p>
+        </section>
+        <section className={`analytics__kpi-card ${m.utilidadReal >= 0 ? 'analytics__kpi-card--pos' : 'analytics__kpi-card--neg'}`}>
+          <p className="analytics__kpi-label">UTILIDAD</p>
+          <p className={`analytics__kpi-value${m.utilidadReal < 0 ? ' analytics__kpi-value--neg' : ''}`}>{formatCLP(m.utilidadReal)}</p>
+          <p className="analytics__kpi-sub">Resultado real del periodo</p>
+        </section>
+        <section className="analytics__kpi-card analytics__kpi-card--gastos">
+          <p className="analytics__kpi-label">GASTOS</p>
+          <p className="analytics__kpi-value">{formatCLP(gastosAmount)}</p>
+          <p className="analytics__kpi-sub">Excl. proveedores · periodo</p>
+        </section>
+        <section className="analytics__kpi-card analytics__kpi-card--proveedores">
+          <p className="analytics__kpi-label">PROVEEDORES</p>
+          <p className="analytics__kpi-value">{formatCLP(proveedorAmount)}</p>
+          <p className="analytics__kpi-sub">Compras a proveedores · periodo</p>
+        </section>
+      </div>
 
       {/* Cascada financiera */}
       <section className="analytics__card">
