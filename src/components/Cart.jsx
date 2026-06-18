@@ -31,6 +31,11 @@ export function Cart({
   const shipCobro    = parseFloat(cobroEnvio) || 0
   const shipCosto    = parseFloat(costoEnvio) || 0
 
+  // Utilidad real operativa (solo ECOM): el monto post-MP ya viene neto de
+  // comisión y con el envío cobrado; al restar el costo real del courier
+  // queda el margen líquido de la operación.
+  const utilidadReal = effectiveTotal - shipCosto
+
   const mpRate   = cfg?.mercadopago?.rate ?? 5.99
   const posType  = cfg?.posType ?? 'getnet'
   const ufValue  = cfg?.ufValue ?? 38500
@@ -278,6 +283,13 @@ export function Cart({
               </p>
             )}
           </div>
+
+          {channel === 'ECOM' && (
+            <div className="utilidad-real">
+              <span className="utilidad-real__label">Utilidad Real Operativa</span>
+              <span className="utilidad-real__value">{formatCLP(utilidadReal)}</span>
+            </div>
+          )}
 
           <button className="btn-checkout" onClick={onCheckout}>
             REGISTRAR VENTA — {formatCLP(discountedListTotal + shipCobro)}

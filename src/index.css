@@ -706,6 +706,23 @@ body {
 }
 .btn-checkout:hover { background: var(--accent-dk); }
 
+/* Utilidad real operativa (ECOM) */
+.utilidad-real {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 4px 16px 0; padding: 10px 14px;
+  border-radius: var(--r-sm);
+  background: rgba(48,209,88,.10);
+  border: 1px solid rgba(48,209,88,.22);
+}
+.utilidad-real__label {
+  font-size: 12px; font-weight: 600; letter-spacing: .02em;
+  text-transform: uppercase; color: var(--text2);
+}
+.utilidad-real__value {
+  font-size: 17px; font-weight: 700; color: var(--success);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Shared: scrollable module wrapper ───────────────────────────────────────── */
 .products, .expenses, .analytics {
   background: var(--bg);
