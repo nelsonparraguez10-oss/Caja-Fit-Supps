@@ -31,10 +31,13 @@ export function Cart({
   const shipCobro    = parseFloat(cobroEnvio) || 0
   const shipCosto    = parseFloat(costoEnvio) || 0
 
-  // Utilidad real operativa (solo ECOM): el monto post-MP ya viene neto de
-  // comisión y con el envío cobrado; al restar el costo real del courier
-  // queda el margen líquido de la operación.
-  const utilidadReal = effectiveTotal - shipCosto
+  // Utilidad neta contable (solo ECOM):
+  //  ((Monto recibido post-MP − Costo real del envío) / 1.19) − Costo neto producto
+  // El monto post-MP ya viene neto de comisión y con el envío cobrado; se le
+  // resta el costo del courier, se quita el IVA (calcNeto = /1.19) y se descuenta
+  // el costo de adquisición del producto.
+  const productCost  = items.reduce((acc, i) => acc + (i.cost || 0) * i.quantity, 0)
+  const utilidadReal = Math.round(calcNeto(effectiveTotal - shipCosto)) - productCost
 
   const mpRate   = cfg?.mercadopago?.rate ?? 5.99
   const posType  = cfg?.posType ?? 'getnet'
