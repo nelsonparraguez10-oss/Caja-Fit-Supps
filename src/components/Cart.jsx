@@ -280,7 +280,7 @@ export function Cart({
           </div>
 
           <button className="btn-checkout" onClick={onCheckout}>
-            REGISTRAR VENTA — {formatCLP(effectiveTotal + shipCobro)}
+            REGISTRAR VENTA — {formatCLP(discountedListTotal + shipCobro)}
           </button>
         </>
       )}
